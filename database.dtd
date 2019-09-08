@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!ELEMENT app-data (database+)>
+<!ELEMENT database (module+)>
+<!ATTLIST database
+	name CDATA #IMPLIED
+	defaultIdMethod (native | none) "none"
+	package CDATA #IMPLIED
+	baseClass CDATA #IMPLIED
+	basePeer CDATA #IMPLIED
+	defaultNameConversion (nochange | underscore | javaname) "underscore"
+>
+<!ELEMENT module (submodule*)>
+<!ATTLIST module
+	name CDATA #IMPLIED
+	chineseDescription CDATA #IMPLIED
+>
+<!ELEMENT submodule (table+)>
+<!ATTLIST submodule
+	name CDATA #IMPLIED
+	chineseDescription CDATA #IMPLIED
+>
+<!ELEMENT table ( rem*,column+, ( foreign-key | index | unique | id-method-parameter | family)*)>
+<!ATTLIST table
+	name CDATA #REQUIRED
+	javaName CDATA #IMPLIED
+	idMethod (native | none | null) "null"
+	baseClass CDATA #IMPLIED
+	alias CDATA #IMPLIED
+	nameConversion (nochange | underscore | javaname) #IMPLIED
+	pkg CDATA #IMPLIED
+	jspPath CDATA #IMPLIED
+	chineseDescription CDATA #IMPLIED
+	uuid CDATA #IMPLIED
+	pageLines CDATA #IMPLIED
+	function1 CDATA #IMPLIED
+	onHelp (true|false) "false"
+	simple (true|false) "false"
+	head CDATA #IMPLIED
+	line CDATA #IMPLIED
+>
+<!ELEMENT rem (#PCDATA)>
+<!ELEMENT column EMPTY>
+<!ATTLIST column
+	name CDATA #REQUIRED
+	javaName CDATA #IMPLIED
+	primaryKey (true | false) "false"
+	autoIncrement (true | false) "false"
+	required (true | false) "false"
+	type
+	  (
+			  BIT  | TINYINT | SMALLINT    | INTEGER    | BIGINT    | FLOAT
+			| REAL | NUMERIC | DECIMAL     | CHAR       | VARCHAR   | LONGVARCHAR
+			| DATE | TIME    | TIMESTAMP   | BINARY     | VARBINARY | LONGVARBINARY
+			| NULL | OTHER   | JAVA_OBJECT | DISTINCT   | STRUCT    | ARRAY
+			| BLOB | CLOB    | REF         | BOOLEANINT | BOOLEANCHAR
+			| DOUBLE
+	   ) "VARCHAR"
+	size CDATA #IMPLIED
+	default CDATA #IMPLIED
+	inputValidator CDATA #IMPLIED
+	nameConversion (nochange | underscore | javaname) #IMPLIED
+	chineseDescription CDATA #IMPLIED
+	pkg CDATA #IMPLIED
+	isGet (true | false) "false"
+	enumValue CDATA #IMPLIED
+	order (true | false) "false"
+	orderMethod (ASC | DESC) "ASC"
+	inSelect (true | false) "true"
+	searchShow (true | false) "true"
+	insertShow (true | false) "true"
+	updateShow (true | false) "true"
+	queryShow (true | false) "true"
+	detailShow (true | false) "true"
+	format (money | amount | date | time) #IMPLIED
+	inputSize CDATA #IMPLIED
+	readOnlyU (true | false) "false"
+	readOnlyI (true | false) "false"	
+	note CDATA #IMPLIED
+>
+<!ELEMENT foreign-key (reference+)>
+<!ATTLIST foreign-key
+	foreignTable CDATA #REQUIRED
+	name CDATA #IMPLIED
+	onUpdate (help | select | hidden | text | none) "none"
+	onInsert (help | select | hidden | text | none) "none"
+	showCol CDATA #IMPLIED
+	noSql (true | false) "false"
+	typeCol CDATA #IMPLIED
+	typeValue CDATA #IMPLIED
+>
+<!ELEMENT reference EMPTY>
+<!ATTLIST reference
+	local CDATA #REQUIRED
+	foreign CDATA #REQUIRED
+	value CDATA #IMPLIED
+>
+<!ELEMENT index (index-column+)>
+<!ATTLIST index
+	name CDATA #IMPLIED
+>
+<!ELEMENT index-column EMPTY>
+<!ATTLIST index-column
+	name CDATA #REQUIRED
+	size CDATA #IMPLIED
+>
+<!ELEMENT unique (unique-column+)>
+<!ATTLIST unique
+	name CDATA #IMPLIED
+>
+<!ELEMENT unique-column EMPTY>
+<!ATTLIST unique-column
+	name CDATA #REQUIRED
+>
+<!ELEMENT id-method-parameter EMPTY>
+<!ATTLIST id-method-parameter
+	name CDATA "default"
+	value CDATA #REQUIRED
+>
+<!ELEMENT family EMPTY>
+<!ATTLIST family
+	childTable CDATA #REQUIRED
+	childLocal CDATA #REQUIRED
+	parentLocal CDATA #REQUIRED
+	childForeign CDATA #REQUIRED
+	parentForeign CDATA #REQUIRED
+>
+<!--
+1.table的family单元用于描述这个表中某些列之间的“亲属”关系，如slsman是儿子child，node是父亲parent
+	在childTable中childForeign必须是主键,parentForeign必须在childTable中有定义
+2.foreign-key有4种：
+	1) 一般的
+	noSql="false"，会生成数据库表的外键
+	2) 虚拟的
+	noSql="true"
+	在foreign-key中有一个noSql属性，表示这个外键是否需要在数据库中建立，如果noSql=false，表示
+	这个外键是一个“虚拟”的外键，只是为了描述数据之间的逻辑关系，同时为了生成程序，如下拉框用。
+	3)虚拟并一对多表的
+	noSql="true" typeCol/typeValue有定义
+	用于表示表中的一个列对应多个表的情况，如在仓库事务matltrans中ref_type/ref_num/ref_line字段
+	4)虚拟并多对一表的
+	noSql="true" 在reference中local="" value有定义
+	如损溢单PROFIT_LOSS中的原因码REASON
+4.
+-->

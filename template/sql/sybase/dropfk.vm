@@ -1,0 +1,5 @@
+#foreach ($fk in $table.ForeignKeys)
+#if ( !$fk.NoSql)
+ALTER TABLE $table.Name DROP CONSTRAINT $fk.Name;
+#end
+#end

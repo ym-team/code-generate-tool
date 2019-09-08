@@ -1,0 +1,120 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.utils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ${package}.data.${table.JavaName};
+import ${package}.view.${table.JavaName}View;
+/**
+ * @author cyy
+ * @date [$now]
+ * @desc 功能:本类为${table.chineseDescription}的ViewUtils
+ */
+public class ${table.JavaName}ViewUtils {
+
+    /**
+     * 通过databean取view list
+     * @param list
+     * @return
+     */
+    public static List<Object> get${table.JavaName}ListView(List<Object> list) {
+    	if(list==null){
+    		return null;
+    	}
+        List<Object> view = new ArrayList<Object>(list.size());
+        for (int i = 0; i < list.size(); i++) {
+            view.add(get${table.JavaName}View((${table.JavaName}) list.get(i)));
+        }
+        return view;
+    }
+    
+    /**
+     * 通过view取databean list
+     * @param list
+     * @return
+     */
+    public static List<Object> get${table.JavaName}List(List<Object> list) {
+    	if( list == null ) {
+    		return null;
+    	}
+        List<Object> datas = new ArrayList<Object>(list.size());
+        for (int i = 0; i < list.size(); i++) {
+            datas.add(get${table.JavaName}((${table.JavaName}View) list.get(i)));
+        }
+        return datas;
+    }
+    
+    /** 
+     * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+     * @return
+     */
+    public static ${table.JavaName}View get${table.JavaName}View(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}) {
+    	if(${strings.lowercaseFirstLetter($table.JavaName)}==null){
+    		return null;
+    	}
+        ${table.JavaName}View view = new ${table.JavaName}View();
+        try {
+#foreach ($col in $table.Columns)
+#set ( $cjtype = $col.JavaType )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ($defVal = "")
+#if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+#set ( $quote = '' )
+#if ( $cjtype == "String" ) 
+#set ( $quote = '"' )
+#end
+#set ( $defaultValue = $col.DefaultValue )
+#if ( $cjtype == "boolean" )
+#if ( $defaultValue == "1" || $defaultValue == "Y" )
+#set ( $defaultValue = "true" )
+#elseif ( $defaultValue == "0" || $defaultValue == "N" )
+#set ( $defaultValue = "false" )
+#end
+#end
+#set ($defVal = "=$quote$defaultValue$quote")
+#end			    
+#set ( $cfc=$col.JavaName )
+	    view.set${cfc}(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}());			          
+#end                    
+        } catch (Exception e) {
+            throw new RuntimeException("由${table.JavaName}得到${table.JavaName}View出错", e);
+        }
+        return view;
+    }
+    
+    /** 
+     * @param ${strings.lowercaseFirstLetter($table.JavaName)}View
+     * @return
+     */
+    public static ${table.JavaName} get${table.JavaName}(${table.JavaName}View ${strings.lowercaseFirstLetter($table.JavaName)}View) {
+        ${table.JavaName} data = new ${table.JavaName}();
+        try {
+#foreach ($col in $table.Columns)
+#set ( $cjtype = $col.JavaType )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ($defVal = "")
+#if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+#set ( $quote = '' )
+#if ( $cjtype == "String" ) 
+#set ( $quote = '"' )
+#end
+#set ( $defaultValue = $col.DefaultValue )
+#if ( $cjtype == "boolean" )
+#if ( $defaultValue == "1" || $defaultValue == "Y" )
+#set ( $defaultValue = "true" )
+#elseif ( $defaultValue == "0" || $defaultValue == "N" )
+#set ( $defaultValue = "false" )
+#end
+#end
+#set ($defVal = "=$quote$defaultValue$quote")
+#end			    
+#set ( $cfc=$col.JavaName )
+	    data.set${cfc}(${strings.lowercaseFirstLetter($table.JavaName)}View.get${cfc}());			          
+#end                    
+        } catch (Exception e) {
+            throw new RuntimeException("由${table.JavaName}View得到${table.JavaName}出错", e);
+        }
+        return data;
+    }  
+}

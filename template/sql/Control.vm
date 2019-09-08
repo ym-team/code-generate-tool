@@ -1,0 +1,3 @@
+#set ( $basepath = "sql/$targetDatabase" )
+#set ( $controlname= "$basepath/Control.vm" )
+$generator.parse($controlname,"","table",$table)

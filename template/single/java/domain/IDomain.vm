@@ -1,0 +1,65 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+ 
+package ${package}.domain;
+//导入java类
+import java.util.List;
+import java.util.Map;
+
+import ${package}.data.${table.JavaName};
+
+import net.mast.util.Page;
+import net.mast.util.RowSelection;
+
+/**
+ * 功能:本类为${table.chineseDescription}的Domain接口
+ *
+ * @author  请务必填写
+ * @date    [$now]
+ *
+ * $Id$
+ */
+public interface I${table.JavaName}Domain {	
+
+	/**
+	 * 删除	${table.chineseDescription}	一条记录
+	 * @param #parse("pk/pk.vm")
+	 
+	 */	
+    public void delete${table.JavaName}(#parse("pk/pkA.vm"));
+
+	/**
+	 * 取得	${table.chineseDescription}	一条明细
+	 * @param #parse("pk/pk.vm")	 
+	 * @return
+	 */
+    public ${table.JavaName} get${table.JavaName}(#parse("pk/pkA.vm"));
+
+    /**
+     * 查询	${table.chineseDescription}	一页记录
+     * @param rowSelection
+     * @param map
+     * @return
+     */
+    public Page getAll${table.JavaName}(RowSelection rowSelection,Map map);
+
+    /**
+     * 查询	${table.chineseDescription}	全部记录
+     * @param map
+     * @return
+     */
+	public List getAll${table.JavaName}NoPage(Map map);
+
+	/**
+	 * 插入	${table.chineseDescription}	一条记录
+	 * @param ${table.JavaName.toLowerCase()}
+	 * @return
+	 */    
+    public ${table.JavaName} insert${table.JavaName}(${table.JavaName} ${table.JavaName.toLowerCase()});
+
+    /**
+     * 修改	${table.chineseDescription}	一条记录
+     * @param ${table.JavaName.toLowerCase()}
+     * @return
+     */
+    public ${table.JavaName} update${table.JavaName}(${table.JavaName} ${table.JavaName.toLowerCase()});
+}

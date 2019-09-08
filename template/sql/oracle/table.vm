@@ -1,0 +1,26 @@
+--${table.chineseDescription}
+CREATE TABLE $table.Name
+(
+#set ( $cols = $generator.parse("$basepath/columns.vm", "", "table", $tbl) )
+#set ( $unique = $generator.parse("$basepath/unique.vm", "", "table", $tbl) )
+#if($strings.allEmpty([$unique]))$strings.chop($cols,2)#else$cols
+#end
+#if($unique.length()>0)$strings.chop($unique,2)
+#end
+
+);
+comment on table $table.Name is '${table.chineseDescription}';
+#foreach ($col in $table.Columns)
+comment on column ${table.Name}.$col.Name is '${col.chineseDescription}';
+#end
+
+--插入模块
+INSERT INTO PUB_MODULES (MODULE_ID, MODULE_NAME, PARENT_MODULE_ID, IS_LEAF, SEQ ) VALUES ( '$table.Name', '${table.chineseDescription}', '$table.Name', '1', 4 ); 
+--插入功能
+INSERT INTO PUB_FUNCTIONS (FUNCTION_ID, FUNCTION_CODE, FUNCTION_NAME, MODULE_ID, IS_SYS, DATA_RES_TYPE, SEQ ) VALUES ( '$table.Name', '$table.Name', '${table.chineseDescription}维护', '$table.Name', '0', '', 1 );  
+--插入资源
+INSERT INTO PUB_RESOURCES (RESOURCE_ID, RESOURCE_NAME, RESOURCE_ALIAS, URL_NAMES, SECURITY_LEVEL, FUNCTION_ID, IS_DEFAULT, IS_AUDIT, RES_TYPE_ID, SEQ ) VALUES ( '${table.Name}01', '维护', '维护', '${table.JavaName.toLowerCase()}.cmd', 0, '$table.Name', '0', '0', '00', 0 );  
+INSERT INTO PUB_RESOURCES (RESOURCE_ID, RESOURCE_NAME, RESOURCE_ALIAS, URL_NAMES, SECURITY_LEVEL, FUNCTION_ID, IS_DEFAULT, IS_AUDIT, RES_TYPE_ID, SEQ ) VALUES ( '${table.Name}02', '查询', '查询', '${table.JavaName.toLowerCase()}query_page_init.cmd', 0, '$table.Name', '0', '0', '00', 1 );  
+--
+INSERT INTO PUB_URLS (URL_ID, URL_NAME, RESOURCE_ID, FUNCTION_ID, URL_NOTE ) VALUES ( '${table.Name}01', '${table.JavaName.toLowerCase()}.cmd', '${table.Name}01', '$table.Name', '' ); 
+INSERT INTO PUB_URLS (URL_ID, URL_NAME, RESOURCE_ID, FUNCTION_ID, URL_NOTE ) VALUES ( '${table.Name}02', '${table.JavaName.toLowerCase()}query_page_init.cmd', '${table.Name}02', '$table.Name', '' ); 

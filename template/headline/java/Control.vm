@@ -1,0 +1,150 @@
+#set ($basePath = $generator.OutputPath)
+#foreach ($databaseModel in $appData.Databases)
+#foreach ($table in $databaseModel.Tables)
+#set ( $tblName = $table.JavaName.toLowerCase() )
+#if ( $table.pkg )
+#set ( $tblPackage = $table.pkg )
+#else
+#set ( $tblPackage = $tblName )
+#end
+
+##���ӱ�����java���뿪ʼ
+#if($table.hasHead() || $table.hasLine())
+
+##���ӱ�����java�������
+#else
+#########################################################################################
+##��������java���뿪ʼ
+
+
+
+
+
+#####################�������712############
+##controller��ʼ
+#set ( $pkbasecmd = "${topPackage}${tblPackage}.controller" )
+#set ( $path = $strings.getPackageAsPath($pkbasecmd))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}Handler.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasecmd)}$fname" )   
+$generator.parse("single/java/controller/controller.vm",$path,"table",$table)
+##cmd����
+
+
+
+
+
+
+
+##serviceSV��ʼ
+##�ӿ�
+#set ( $pkbaseservice = "${topPackage}${tblPackage}.service.interfaces" )
+#set ( $path = $strings.getPackageAsPath($pkbaseservice))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}Service.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseservice)}$fname" )   
+$generator.parse("single/java/service/IServiceSv.vm",$path,"table",$table)
+
+##ʵ��
+#set ( $pkbaseservicesupport = "${topPackage}${tblPackage}.service.impl" )
+#set ( $path = $strings.getPackageAsPath($pkbaseservicesupport))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}ServiceImpl.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseservicesupport)}$fname" )   
+$generator.parse("single/java/service/ServiceSupportSv.vm",$path,"table",$table)
+##service����
+
+
+##mapper��ʼ
+##�ӿ�
+#set ( $pkbasemapper = "${topPackage}${tblPackage}.service.mapper" )
+#set ( $path = $strings.getPackageAsPath($pkbasemapper))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}Mapper.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasemapper)}$fname" )   
+$generator.parse("single/java/dao/mapperClass.vm",$path,"table",$table)
+
+
+
+
+##dao��ʼ
+##�ӿ�
+#set ( $pkbasedao = "${topPackage}${tblPackage}.dao.interfaces" )
+#set ( $path = $strings.getPackageAsPath($pkbasedao))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "I${table.JavaName}Dao.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedao)}$fname" )   
+$generator.parse("single/java/dao/IDao.vm",$path,"table",$table)
+
+##ʵ��
+#set ( $pkbasedaosupport = "${topPackage}${tblPackage}.dao.impl" )
+#set ( $path = $strings.getPackageAsPath($pkbasedaosupport))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}DaoImpl.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedaosupport)}$fname" )   
+$generator.parse("single/java/dao/DaoSupport.vm",$path,"table",$table)
+##dao����
+
+
+
+
+
+
+
+##test ����
+#set ( $pkbasedaosupport = "${topPackage}${tblPackage}.service.impl" )
+#set ( $path = $strings.getPackageAsPath($pkbasedaosupport))
+$files.mkdir("$outputDirectory/$path") 
+
+##test����
+#set ( $fname = "${table.JavaName}ServiceTest.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedaosupport)}$fname" )   
+$generator.parse("single/java/test/ServiceSupport.vm",$path,"table",$table)
+##test��������
+
+
+##test ����
+#set ( $pkbasedaosupport = "${topPackage}${tblPackage}.controller" )
+#set ( $path = $strings.getPackageAsPath($pkbasedaosupport))
+$files.mkdir("$outputDirectory/$path") 
+
+##test����
+#set ( $fname = "${table.JavaName}HandlerTest.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedaosupport)}$fname" )   
+$generator.parse("single/java/test/ControllerSupport.vm",$path,"table",$table)
+##test��������
+
+
+##databean��ʼ
+#set ( $pkbasedatabean = "${topPackage}${tblPackage}.model" )
+#set ( $path = $strings.getPackageAsPath($pkbasedatabean))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}Model.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedatabean)}$fname" )   
+$generator.parse("single/java/bean/Bean.vm",$path,"table",$table)
+##databean����
+
+
+##mappingbean��ʼ
+#set ( $pkbasedatabean = "${topPackage}${tblPackage}.mapper" )
+#set ( $path = $strings.getPackageAsPath($pkbasedatabean))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}EntityMapper.xml" )
+#set ( $path = "${strings.getPackageAsPath($pkbasedatabean)}$fname" )   
+$generator.parse("single/java/bean/BeanXml.vm",$path,"table",$table)
+##mappingbean����
+
+
+##��������java�������
+############################
+#end
+#end
+#end

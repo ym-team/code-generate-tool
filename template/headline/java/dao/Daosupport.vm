@@ -1,0 +1,810 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+
+#if ( $table.Line )
+#set ( $lineTable = ${table.LineTable} )
+#else
+#set ( $lineTable = ${table.HeadTable} )
+#end
+/*
+ * @(#)I${table.JavaName}JdbcDao.java 
+ * 程序生成时间：[$now] 生成
+ */
+package ${package}.dao.jdbc;
+//导入java类
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import javax.sql.DataSource;
+//导入loushang类
+import org.loushang.commons.jdbc.core.SqlParameter;
+import org.loushang.commons.jdbc.object.MappingSqlQuery;
+import org.loushang.commons.jdbc.object.SqlUpdate;
+import org.loushang.util.Page;
+import org.loushang.util.RowSelection;
+//导入Log
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import ${package}.dao.I${table.JavaName}Dao;
+import ${package}.data.${table.JavaName};
+import ${package}.data.${lineTable.JavaName};
+import org.loushang.util.domain.BaseJdbcDao;
+
+/**
+ * 功能:本类为${table.chineseDescription}的Dao实现类${table.JavaName}JdbcDao
+ *
+ * @author  请务必填写
+ * @date    [$now]
+ *
+ * $Id$
+ */
+public class ${table.JavaName}JdbcDao
+    extends BaseJdbcDao
+    implements I${table.JavaName}Dao {
+    long orderId=0;
+    private static Log log = LogFactory.getLog(${table.JavaName}JdbcDao.class);
+    //  插入${table.JavaName}   sql
+    private final static String insert${table.JavaName}Sql = get${table.JavaName}InsertSql();
+    //  删除${table.JavaName}   sql
+    private final static String delete${table.JavaName}Sql = get${table.JavaName}DeleteSql();
+    //  明细${table.JavaName}   sql
+    private final static String detail${table.JavaName}Sql = get${table.JavaName}DetailSql();
+    //	更新${table.JavaName}   sql
+    private final static String update${table.JavaName}Sql = get${table.JavaName}UpdateSql();
+    //  插入${lineTable.JavaName}   sql
+    private final static String insert${lineTable.JavaName}Sql = get${lineTable.JavaName}InsertSql();
+    //  按照${table.JavaName}主建 删除${lineTable.JavaName}   sql
+    private final static String delete${lineTable.JavaName}AllSql = get${lineTable.JavaName}DeleteAllSql();    
+    //  明细${lineTable.JavaName}   sql
+    private final static String detail${lineTable.JavaName}Sql = get${lineTable.JavaName}DetailSql();
+    //  特殊查询sql
+    private final static String querySql = getQuerySql();
+##主表插入
+	/**
+	 *  @return
+	 */
+    public static String get${table.JavaName}InsertSql()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("INSERT INTO ${table.Name} (");
+#set($comma = false)
+#foreach($col in $table.Columns)
+    #if($comma)
+    sb.append(",");
+    #end
+    sb.append("$col.Name"); //$col.chineseDescription
+#set($comma=true)
+#end
+    	sb.append(") VALUES(");
+#set($comma = false)
+#foreach($col in $table.Columns)
+    #if($comma)
+    sb.append(",");
+    #end
+    sb.append("?");  //$col.chineseDescription
+#set($comma=true)
+#end
+        sb.append(")");
+        return sb.toString();
+    }
+##主表更新
+	/**
+	 *  @return
+	 */
+    public static String get${table.JavaName}UpdateSql() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("UPDATE ${table.Name} SET ");
+#set($comma = false)
+#foreach ($col in $table.Columns)
+#if( !$col.isPrimaryKey())
+#if($comma)
+		sb.append(" , ");
+#end
+		sb.append("$col.Name=?");  //$col.chineseDescription
+#set($comma = true)
+#end 
+#end 
+    	sb.append(" WHERE ");
+#set($comma = false)
+#foreach ($col in $table.PrimaryKeys)
+    #if($comma)
+    sb.append(" AND ");
+    #end
+    sb.append("$col.Name=?");  //$col.chineseDescription
+#set( $comma = true )
+#end
+        return sb.toString();
+    }
+##主表删除
+    /**
+	 *  @return
+	 */
+    public static String get${table.JavaName}DeleteSql(){
+        StringBuffer sb = new StringBuffer();
+        sb.append("DELETE FROM ${table.Name} WHERE ");
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)
+    #if($comma)
+    sb.append(" AND ");
+    #end
+    sb.append("$pk.Name=?"); //$pk.chineseDescription
+#set( $comma = true )
+#end
+        return sb.toString();
+    }    
+##主表明细
+    /**
+	 *  @return
+	 */
+ 	public static String get${table.JavaName}DetailSql()	{
+	    StringBuffer sb = new StringBuffer();
+	    sb.append("SELECT "); 
+#set($comma = false)
+#foreach($col in $table.Columns)
+    #if($comma)
+    sb.append(",");
+    #end
+    sb.append("$col.Name"); //$col.chineseDescription
+#set($comma=true)
+#end	    
+        sb.append(" FROM ${table.Name} WHERE ");
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)
+    #if($comma)
+    sb.append(" AND ");
+    #end
+    sb.append("$pk.Name=?");
+#set( $comma = true )
+#end
+        return sb.toString();
+	}
+##从表插入	
+	/**
+	 *  @return
+	 */
+    public static String get${lineTable.JavaName}InsertSql()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("INSERT INTO ${lineTable.Name} (");
+#set($comma = false)
+#foreach($col in $lineTable.Columns)
+#if($comma)
+    sb.append(",");
+#end
+#if( !$col.isPrimaryKey() && !$col.isForeignKey() )
+    sb.append("$col.Name"); //$col.chineseDescription
+#elseif( !$col.isForeignKey() )
+    sb.append("$col.Name"); //$col.chineseDescription
+#else
+    sb.append("$col.Name"); //$col.chineseDescription
+#end
+#set($comma=true)
+#end
+    	sb.append(") VALUES(");
+#set($comma = false)
+#foreach($col in $lineTable.Columns)
+    #if($comma)
+    sb.append(",");
+    #end
+    sb.append("?");  //$col.chineseDescription
+#set($comma=true)
+#end
+        sb.append(")");
+        return sb.toString();
+    }
+##从表按主表主键删除
+    /**
+	 *  @return
+	 */
+    public static String get${lineTable.JavaName}DeleteAllSql(){
+        StringBuffer sb = new StringBuffer();
+        sb.append("DELETE FROM ${lineTable.Name} WHERE ");
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)
+    #if($comma)
+    sb.append(" AND ");
+    #end
+    sb.append("$pk.Name=?"); //$pk.chineseDescription
+#set( $comma = true )
+#end
+        return sb.toString();
+    }    
+##从表明细
+    /**
+	 *  @return
+	 */
+ 	public static String get${lineTable.JavaName}DetailSql()	{
+	    StringBuffer sb = new StringBuffer();
+	    sb.append("SELECT "); 
+#set($comma = false)
+#foreach($col in $lineTable.Columns)
+    #if($comma)
+    sb.append(",");
+    #end
+    sb.append("$col.Name"); //$col.chineseDescription
+#set($comma=true)
+#end	    
+        sb.append(" FROM ${lineTable.Name} WHERE ");
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)
+    #if($comma)
+    sb.append(" AND ");
+    #end
+    sb.append("$pk.Name=?");
+#set( $comma = true )
+#end
+        return sb.toString();
+	}
+##------------------------主表 查询----start------------------##
+    /**
+	 *  @return
+	 */
+ 	public static String getQuerySql()	{
+	    StringBuffer sb = new StringBuffer();
+	    sb.append("SELECT "); 
+#set($comma = false)
+#foreach($col in $table.Columns)
+#if($comma)
+    	sb.append(",");
+#end
+   		sb.append("$col.name"); //$col.name
+#set($comma=true)
+#end	    
+        sb.append(" FROM ${table.name}");
+        return sb.toString();
+	}
+##------------------------主表 查询----end------------------##		
+#########################主表内部类开始
+##主表明细
+    //主表记录明细内部类
+    protected static class ${table.JavaName}Detail extends MappingSqlQuery {
+        protected ${table.JavaName}Detail(DataSource ds) {
+            super(ds, detail${table.JavaName}Sql);
+            //参数类型设定
+#foreach ($pk in $table.PrimaryKeys)
+			declareParameter(new SqlParameter(Types.${pk.Type}));
+#end
+        }
+        /**
+         * @param rs
+         * @param rowNum
+         * @return
+         * @throws SQLException
+         */
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)} = new ${table.JavaName}();
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType ) 
+#if ( $col.JavaType=="boolean" )
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getString("$clo"));
+#elseif ($col.JavaType=="int")
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getInt("$clo"));
+#elseif ($col.JavaType=="double")
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getDouble("$clo"));	
+#else
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.get${col.JavaType}("$clo"));    
+#end        
+#end 
+            return ${strings.lowercaseFirstLetter($table.JavaName)};
+        }
+		/** 
+		 * @param #parse("pk/pk.vm")
+		 * @return
+		 */          
+        public ${table.JavaName} load(#parse("pk/pkA.vm")) {
+            return (${table.JavaName}) findObject(new Object[] { #parse("pk/pkO.vm")});
+        }
+    }
+##主表增加
+    //主表记录增加内部类
+    protected static class ${table.JavaName}Insert extends SqlUpdate {
+        protected ${table.JavaName}Insert(DataSource ds) {
+            super(ds, insert${table.JavaName}Sql);
+            //参数类型设定
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType )
+			declareParameter(new SqlParameter(Types.${col.Type})); 
+#end             
+        }        
+        /** 
+         * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+         * @return
+         */
+        public int insert(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}) {
+            Object[] objs =
+                new Object[] {
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int" )
+					new Integer(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),
+#elseif ( $col.JavaType=="double" )	
+					new Double(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),					
+#else
+					${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}(), 
+#end						   
+#end 
+                    };
+            return update(objs);
+        }
+    }
+##主表修改
+	//主表记录修改内部类
+    protected static class ${table.JavaName}Update extends SqlUpdate {
+        protected ${table.JavaName}Update(DataSource ds) {
+            super(ds, update${table.JavaName}Sql);
+            //参数类型设定  
+#foreach ($col in $table.Columns)
+#if( !$col.isPrimaryKey())
+			declareParameter(new SqlParameter(Types.${col.Type})); 
+#end 
+#end 
+#foreach ($col in $table.PrimaryKeys)
+    		declareParameter(new SqlParameter(Types.${col.Type})); 
+#end			             
+        }   
+        /** 
+         * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+         * @return
+         */     
+        public int update(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}) {
+            Object[] objs =
+                new Object[] {
+#foreach ($col in $table.Columns)
+#if( !$col.isPrimaryKey())
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int" )
+					new Integer(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),
+#elseif ( $col.JavaType=="double" )	
+					new Double(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),					
+#else
+					${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}(), 
+#end 
+#end 
+#end 
+#foreach ($col in $table.PrimaryKeys)
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int" )
+					new Integer(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),
+#elseif ( $col.JavaType=="double" )	
+					new Double(${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}()),					
+#else
+					${strings.lowercaseFirstLetter($table.JavaName)}.get${cfc}(), 
+#end
+#end
+                    };
+            return update(objs);
+        }
+    }
+##主表删除
+	//主表记录删除内部类
+    protected static class ${table.JavaName}Delete extends SqlUpdate {
+        protected ${table.JavaName}Delete(DataSource ds) {
+            super(ds, delete${table.JavaName}Sql);
+            //参数类型设定
+#foreach ($pk in $table.PrimaryKeys)   
+			declareParameter(new SqlParameter(Types.${pk.Type}));
+#end
+            
+        }
+        /**
+         * @param #parse("pk/pk.vm")
+         * @return
+         */
+        public int delete(#parse("pk/pkA.vm")) {
+            Object[] objs = new Object[] {#parse("pk/pkO.vm")};
+            return update(objs);
+        }
+    }
+#########################主表内部类结束
+
+#########################从表内部类开始
+##从表明细
+    //从表记录明细内部类
+    protected static class ${lineTable.JavaName}Detail extends MappingSqlQuery {
+        protected ${lineTable.JavaName}Detail(DataSource ds) {
+            super(ds, detail${lineTable.JavaName}Sql);
+            //参数类型设定
+#foreach ($pk in $table.PrimaryKeys)
+			declareParameter(new SqlParameter(Types.${pk.Type}));
+#end
+        }
+        /**
+         * @param rs
+         * @param rowNum
+         * @return
+         * @throws SQLException
+         */
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ${lineTable.JavaName} ${lineTable.JavaName.toLowerCase()} = new ${lineTable.JavaName}();
+#foreach ($col in $lineTable.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType ) 
+#if ( $col.JavaType=="boolean" )
+			${lineTable.JavaName.toLowerCase()}.set${cfc}(rs.getString("$clo"));
+#elseif ($col.JavaType=="int")
+			${lineTable.JavaName.toLowerCase()}.set${cfc}(rs.getInt("$clo"));
+#elseif ($col.JavaType=="double")
+			${lineTable.JavaName.toLowerCase()}.set${cfc}(rs.getDouble("$clo"));	
+#else
+			${lineTable.JavaName.toLowerCase()}.set${cfc}(rs.get${col.JavaType}("$clo"));    
+#end        
+#end 
+            return ${lineTable.JavaName.toLowerCase()};
+        }
+		/** 
+		 * @param #parse("pk/pk.vm")
+		 * @return
+		 */          
+        public List get${lineTable.JavaName}(#parse("pk/pkA.vm")) {
+            return execute(new Object[] { #parse("pk/pkO.vm")});
+        }
+    }
+##从表增加
+    //从表记录增加内部类
+    protected static class ${lineTable.JavaName}Insert extends SqlUpdate {
+        protected ${lineTable.JavaName}Insert(DataSource ds) {
+            super(ds, insert${lineTable.JavaName}Sql);
+            //参数类型设定
+#foreach ($col in $lineTable.Columns)
+#if( !$col.isPrimaryKey() && !$col.isForeignKey() )
+			declareParameter(new SqlParameter(Types.${col.Type})); 
+#elseif( !$col.isForeignKey() )
+    		declareParameter(new SqlParameter(Types.${col.Type}));
+#else
+    		declareParameter(new SqlParameter(Types.${col.Type}));
+#end
+#end           
+        }        
+        /** 
+         * @param ${lineTable.JavaName},#parse("pk/pk.vm")
+
+         * @return
+         */
+        public int insert(${lineTable.JavaName} ${lineTable.JavaName.toLowerCase()},#parse("pk/pkA.vm")) {
+            Object[] objs =
+                new Object[] {
+#foreach ($col in $lineTable.Columns)
+#set ( $cfc=$col.JavaName )
+#if( !$col.isPrimaryKey() && !$col.isForeignKey() )
+#if ( $col.JavaType=="int" )
+					new Integer(${lineTable.JavaName.toLowerCase()}.get${cfc}()),
+#elseif ( $col.JavaType=="double" )	
+					new Double(${lineTable.JavaName.toLowerCase()}.get${cfc}()),					
+#else
+					${lineTable.JavaName.toLowerCase()}.get${cfc}(), 
+#end 
+#elseif( !$col.isForeignKey() )
+#if ( $col.JavaType=="int" )
+					new Integer(${lineTable.JavaName.toLowerCase()}.get${cfc}()),
+#elseif ( $col.JavaType=="double" )	
+					new Double(${lineTable.JavaName.toLowerCase()}.get${cfc}()),					
+#else
+					${lineTable.JavaName.toLowerCase()}.get${cfc}(), 
+#end
+#else
+#if ( $col.JavaType=="int" )
+					#parse("pk/pkO.vm"),
+#elseif ( $col.JavaType=="double" )	
+					#parse("pk/pkO.vm"),				
+#else
+					#parse("pk/pkO.vm"), 
+#end
+#end
+#end
+                };
+            return update(objs);
+        }
+    }
+##从表按主表主键删除全部
+	//从表记录按主表主键删除内部类
+    protected static class ${lineTable.JavaName}DeleteAll extends SqlUpdate {
+        protected ${lineTable.JavaName}DeleteAll(DataSource ds) {
+            super(ds, delete${lineTable.JavaName}AllSql);
+            //参数类型设定
+#foreach ($pk in $table.PrimaryKeys)   
+			declareParameter(new SqlParameter(Types.${pk.Type}));
+#end
+            
+        }
+        /**
+         * @param #parse("pk/pk.vm")
+         
+         * @return
+         */
+        public int delete(#parse("pk/pkA.vm")) {
+            Object[] objs = new Object[] {#parse("pk/pkO.vm")};
+            return update(objs);
+        }
+    }
+#########################从表内部类开始结束
+##------------------------------特殊查询-------start-------------##
+    //特殊查询内部类
+    protected static class ${table.JavaName}Query extends MappingSqlQuery {
+        protected ${table.JavaName}Query(DataSource ds) {
+            super(ds, querySql);
+        }
+        /**
+         * @param rs
+         * @param rowNum
+         * @return
+         * @throws SQLException
+         */
+        protected Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ${table.getJavaName()} ${table.JavaName.toLowerCase()} = new ${table.JavaName}();
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $coljavatype = $col.JavaType)
+#if ( $coljavatype=="boolean" )
+			${table.JavaName.toLowerCase()}.set${cfc}(rs.getString("$col.name"));
+#elseif ($coljavatype=="int")
+			${table.JavaName.toLowerCase()}.set${cfc}(rs.getInt("$col.name"));
+#elseif ($coljavatype=="double")
+			${table.JavaName.toLowerCase()}.set${cfc}(rs.getDouble("$col.name"));
+#elseif ($coljavatype=="byte[]")
+			//针对DB2数据库，如果不是DB2数据库，请自行修改下面一行以及相应databean的方法！
+			${table.JavaName.toLowerCase()}.set${cfc}(rs.getBlob("$col.name"));
+				
+#else
+			${table.JavaName.toLowerCase()}.set${cfc}(rs.get${coljavatype}("$col.name"));    
+#end        
+#end 
+            return ${table.JavaName.toLowerCase()};
+        }
+    }
+##------------------------------特殊查询-------end-------------##
+##编译，初始化
+	//变量的声明
+    private ${table.JavaName}Delete deleter = null;
+    private ${table.JavaName}Insert inserter = null;
+    private ${table.JavaName}Detail finder = null;
+    private ${table.JavaName}Update updater = null;
+    private ${lineTable.JavaName}DeleteAll linedeletealler = null;
+    private ${lineTable.JavaName}Insert lineinserter = null;
+    private ${lineTable.JavaName}Detail linefinder = null;
+	//变量的初始化
+    protected void initDao() {
+        if (deleter == null) {
+            deleter = new ${table.JavaName}Delete(getDataSource());
+            deleter.compile();
+        }
+        if (inserter == null) {
+            inserter = new ${table.JavaName}Insert(getDataSource());
+            inserter.compile();
+        }
+        if (finder == null) {
+            finder = new ${table.JavaName}Detail(getDataSource());
+            finder.compile();
+        }
+        if (updater == null) {
+            updater = new ${table.JavaName}Update(getDataSource());
+            updater.compile();
+        }
+        if (linedeletealler == null) {
+            linedeletealler = new ${lineTable.JavaName}DeleteAll(getDataSource());
+            linedeletealler.compile();
+        }
+        if (lineinserter == null) {
+            lineinserter = new ${lineTable.JavaName}Insert(getDataSource());
+            lineinserter.compile();
+        }
+        if (linefinder == null) {
+            linefinder = new ${lineTable.JavaName}Detail(getDataSource());
+            linefinder.compile();
+        }
+    }
+##对接口的承诺方法实现
+	/**
+     * 删除	${table.chineseDescription}	一条记录
+     * @param #parse("pk/pk.vm")
+     */
+    public void delete${table.JavaName}(#parse("pk/pkA.vm")){
+    	linedeletealler.delete(#parse("pk/pk.vm"));
+        deleter.delete(#parse("pk/pk.vm"));
+    }
+    
+    /**
+     * 取得	${table.chineseDescription}	一条记录
+     * @param #parse("pk/pk.vm")
+     * @return
+     */
+    public ${table.JavaName} get${table.JavaName}(#parse("pk/pkA.vm")){
+        ${table.JavaName} head=finder.load(#parse("pk/pk.vm"));
+        Iterator lines = linefinder.get${lineTable.JavaName}(#parse("pk/pk.vm")).iterator();
+        List linelist = new ArrayList();
+        while (lines.hasNext()) {
+            ${lineTable.JavaName} line = (${lineTable.JavaName}) lines.next();
+            linelist.add(line);
+        }
+        head.setList${lineTable.JavaName}(linelist);
+        return head;
+    }
+	
+	/**
+     * 插入	${table.chineseDescription}	一条记录
+     * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+     * @return
+     */
+    public ${table.JavaName} insert${table.JavaName}(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}){
+        inserter.insert(${strings.lowercaseFirstLetter($table.JavaName)});
+        Iterator lines = ${strings.lowercaseFirstLetter($table.JavaName)}.getList${lineTable.JavaName}().iterator();
+        while (lines.hasNext()) {
+            ${lineTable.JavaName} line = (${lineTable.JavaName}) lines.next();
+#parse("pk/pklineFunc.vm")
+            lineinserter.insert(line, #parse("pk/pkFunc.vm"));
+        }
+        return ${strings.lowercaseFirstLetter($table.JavaName)}; 
+    }
+    
+    /**
+     * 修改	${table.chineseDescription}	一条记录
+     * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+     * @return
+     */
+    public ${table.JavaName} update${table.JavaName}(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}){
+        updater.update(${strings.lowercaseFirstLetter($table.JavaName)});
+    	linedeletealler.delete(#parse("pk/pkFunc.vm"));
+        Iterator lines = ${strings.lowercaseFirstLetter($table.JavaName)}.getList${lineTable.JavaName}().iterator();
+        String delFlag = null;
+        while (lines.hasNext()) {
+            ${lineTable.JavaName} line = (${lineTable.JavaName}) lines.next();
+            delFlag = line.getIsDelete();
+            if (!delFlag.equals("1")) {
+#parse("pk/pklineFunc.vm")
+				lineinserter.insert(line, #parse("pk/pkFunc.vm"));
+            }
+        }
+        return ${strings.lowercaseFirstLetter($table.JavaName)};  
+    }
+ ##用于特殊查询
+#set ( $arrayLen=0 )
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+#set ( $arrayLen=$arrayLen +1 )
+#end
+#end
+    /**
+     * 查询	${table.chineseDescription}	一页记录
+     * @param rowSelection
+     * @param map
+     * @return
+     */
+    public Page getAll${table.JavaName}(RowSelection rowSelection,Map map){
+        ${table.JavaName}Query queryer = new ${table.JavaName}Query(getDataSource());
+        StringBuffer sb = new StringBuffer(queryer.getSql());
+        String [] searchId=new String[$arrayLen];
+#set ( $num=0 )
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+		String [] sa$num=(String [])map.get("${col.Name.toLowerCase()}Search");
+        if(sa$num!=null){
+			searchId[$num]=sa$num[0];
+        }
+#set ( $num=$num +1 )
+#end
+#end
+        boolean whFlag=false;
+        for(int i=0;i<searchId.length;i++){
+            if(searchId[i]!=null){
+                if(!searchId[i].equalsIgnoreCase("")){
+                    whFlag=true;
+                }
+            }
+        }
+        if(whFlag==true){
+            sb.append(" WHERE ");
+        }
+        boolean andFlag=false;
+#set ( $num=0 )
+#foreach ($col in $table.Columns)
+#set ( $coljavatype=$col.JavaType.toLowerCase() )
+#if ( $col.SearchShow )
+        if (searchId[$num] != null) {
+            if ((!searchId[$num].equalsIgnoreCase(""))) {
+		        if(andFlag==true){
+		            sb.append(" AND ");
+		        }
+	#if ($coljavatype=="INTEGER"||$coljavatype=="int"||$coljavatype=="double"||$coljavatype=="float"||$coljavatype=="long")
+		        sb.append("${table.Name}.${col.Name} =").append(searchId[$num]);
+    #else
+		        sb.append("${table.Name}.${col.Name} like '%").append(searchId[$num]).append("%'");
+    #end   
+#if ( $num +1 != $arrayLen )
+				andFlag=true;
+#end
+            }
+        }
+#set ( $num=$num +1 )
+#end
+#end
+
+		String sortName = (String) map.get("sortName");
+		String sortType = (String) map.get("sortType");
+		if (sortType != null && sortName != null) {
+			if (!sortName.equals(""))
+				sb.append(" ORDER BY ").append(sortName + " ");
+			if (!sortType.equals(""))
+				sb.append(sortType);
+		}
+        queryer.setSql(sb.toString());
+        queryer.setPageAble(true);
+        queryer.compile();
+        return queryer.executePage(rowSelection);
+	}
+
+    /**
+     * 查询	${table.chineseDescription}	全部记录
+     * @param map
+     * @return
+     */
+	public List getAll${table.JavaName}NoPage(Map map){
+        ${table.JavaName}Query queryer = new ${table.JavaName}Query(getDataSource());
+        StringBuffer sb = new StringBuffer(queryer.getSql());
+        String [] searchId=new String[$arrayLen];
+#set ( $num=0 )
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+		String [] sa$num=(String [])map.get("${col.Name.toLowerCase()}Search");
+        if(sa$num!=null){
+			searchId[$num]=sa$num[0];
+        }
+#set ( $num=$num +1 )
+#end
+#end
+        boolean whFlag=false;
+        for(int i=0;i<searchId.length;i++){
+            if(searchId[i]!=null){
+                if(!searchId[i].equalsIgnoreCase("")){
+                    whFlag=true;
+                }
+            }
+        }
+        if(whFlag==true){
+            sb.append(" WHERE ");
+        }
+        boolean andFlag=false;
+#set ( $num=0 )
+#foreach ($col in $table.Columns)
+#set ( $coljavatype=$col.JavaType.toLowerCase() )
+#if ( $col.SearchShow )
+        if (searchId[$num] != null) {
+            if ((!searchId[$num].equalsIgnoreCase(""))) {
+		        if(andFlag==true){
+		            sb.append(" AND ");
+		        }
+	#if ($coljavatype=="INTEGER"||$coljavatype=="int"||$coljavatype=="double"||$coljavatype=="float"||$coljavatype=="long")
+		        sb.append("${table.Name}.${col.Name} =").append(searchId[$num]);
+    #else
+		        sb.append("${table.Name}.${col.Name} like '%").append(searchId[$num]).append("%'");
+    #end   
+#if ( $num +1 != $arrayLen )
+				andFlag=true;
+#end
+            }
+        }
+#set ( $num=$num +1 )
+#end
+#end
+		String sortName = (String) map.get("sortName");
+		String sortType = (String) map.get("sortType");
+		if (sortType != null && sortName != null) {
+			if (!sortName.equals(""))
+				sb.append(" ORDER BY ").append(sortName + " ");
+			if (!sortType.equals(""))
+				sb.append(sortType);
+		}
+        queryer.setSql(sb.toString());
+        queryer.setPageAble(true);
+        queryer.compile();
+        return queryer.execute();
+	}
+}

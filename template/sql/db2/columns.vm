@@ -1,0 +1,12 @@
+#foreach ($col in $table.Columns)
+    #set ( $type = $dbprops.get($col.Type) )
+    #set ( $size = $col.printSize() )
+    #if ($col.Type=="boolean")#set($type="CHAR(1)") #set($size="") #end  
+    #if ($col.Type=="INTEGER")#set($size="")#end
+    #set ( $default = $col.DefaultSetting )
+    #set ( $autoIncrement = $strings.select($col.isAutoIncrement(), $dbprops.get("AUTOINCREMENT"),"") )
+    #set ( $nullString = $strings.select($col.isNotNull(), $dbprops.get("NOTNULL"),"") )
+    #set ( $nullString = $strings.select($col.isAutoIncrement(), "", $nullString) )
+    #set ( $entry = "$col.Name $type $size $default $nullString $autoIncrement," )
+    $strings.sub($strings.collapseSpaces(${entry})," ,"," ,")
+#end

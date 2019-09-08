@@ -1,0 +1,113 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+ 
+package ${package}.domain.support;
+
+import java.util.Map;
+import java.util.List;
+
+import ${package}.data.${table.JavaName};
+import ${package}.dao.I${table.JavaName}Dao;
+import ${package}.domain.I${table.JavaName}Domain;
+import net.mast.util.domain.BaseDomain;
+import net.mast.util.Page;
+import net.mast.util.RowSelection;
+//
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+//
+import org.springframework.beans.factory.InitializingBean;
+
+/**
+ * 功能:本类为${table.chineseDescription}的接口Domain实现类${table.JavaName}DomainImpl
+ *
+ * @author  请务必填写
+ * @date    [$now]
+ *
+ * $Id$
+ */
+public class ${table.JavaName}DomainImpl extends BaseDomain  implements I${table.JavaName}Domain{
+    private static Log log = LogFactory.getLog(${table.JavaName}DomainImpl.class);
+    private I${table.JavaName}Dao ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Dao = null;
+    //*******可申明其他的dao来实现其他功能
+
+    /**
+	 * 删除	${table.chineseDescription}	一条记录
+	 * @param #parse("pk/pk.vm")
+	 
+	 */
+    public void delete${table.JavaName}(#parse("pk/pkA.vm")) {
+        get${table.JavaName}Dao().delete${table.JavaName}(#parse("pk/pk.vm"));
+    }
+
+    /**
+	 * 取得	${table.chineseDescription}	一条明细
+	 * @param #parse("pk/pk.vm")
+	 
+	 * @return
+	 */
+    public ${table.JavaName} get${table.JavaName}(#parse("pk/pkA.vm")) {
+        return get${table.JavaName}Dao().get${table.JavaName}(#parse("pk/pk.vm"));
+    }
+    
+    /**
+     * 查询	${table.chineseDescription}	一页记录
+     * @param rowSelection
+     * @param map
+     * @return
+     */
+    public Page getAll${table.JavaName}(RowSelection rowSelection,Map map){
+    	return get${table.JavaName}Dao().getAll${table.JavaName}(rowSelection, map);
+    }
+    
+    /**
+     * 查询	${table.chineseDescription}	全部记录
+     * @param map
+     * @return
+     */
+	public List getAll${table.JavaName}NoPage(Map map){
+    	return get${table.JavaName}Dao().getAll${table.JavaName}NoPage(map);
+    }
+
+	/**
+	 * 插入	${table.chineseDescription}	一条记录
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+	 * @return
+	 */
+    public ${table.JavaName} insert${table.JavaName}(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}) {
+        // 
+        return get${table.JavaName}Dao().insert${table.JavaName}(${strings.lowercaseFirstLetter($table.JavaName)});
+    }
+
+    /**
+     * 修改	${table.chineseDescription}	一条记录
+     * @param ${strings.lowercaseFirstLetter($table.JavaName)}
+     * @return
+     */
+    public ${table.JavaName} update${table.JavaName}(${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)}) {
+        // 
+        return get${table.JavaName}Dao().update${table.JavaName}(${strings.lowercaseFirstLetter($table.JavaName)});
+    }
+   /**
+     * @return
+     */
+    public I${table.JavaName}Dao get${table.JavaName}Dao() {
+        return ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Dao;
+    }
+
+    /**
+     * @param dao
+     */
+    public void set${table.JavaName}Dao(I${table.JavaName}Dao dao) {
+        ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Dao = dao;
+    }
+
+    /**
+     * 
+     */
+    protected void initDomain() {
+        if (get${table.JavaName}Dao() == null) {
+            throw new RuntimeException("${table.JavaName}ServiceSupport配置错误,属性${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Dao不能为空");
+        }
+    }
+
+}

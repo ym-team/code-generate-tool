@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<project name="Generator" default="main" basedir=".">
+  
+  <!-- 类路径属性 -->
+  <property name="lib.dir" value="lib"/> 
+
+  <!-- 设置自动生成类路径 -->
+  <path id="classpath">
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+  
+  <!--装载 build.properties 属性文件-->
+  <property name="build.properties" value="config/generator.properties"/>
+  <property file="${build.properties}"/>
+  <!-- ================================================================ -->
+  <!-- 主要任务                                                                   -->
+  <!-- ================================================================ -->
+
+  <target name="main" description="==> 主要任务:生成JAVA代码、配置文件、JSP页面、枚举值和SQL语句，清除临时文件">        
+    <antcall target="generateJava"/>
+  	<antcall target="generateJsp"/>
+	<antcall target="generateConf"/> 
+  	<antcall target="generateSql"/>
+	<antcall target="generateEnum"/>
+  	<antcall target="cleantemp"/>
+  </target>
+<!--
+  <target name="full" description="==> main任务+特殊查询任务">        
+    <antcall target="generateJava"/>
+  	<antcall target="generateJsp"/>
+	<antcall target="generateConf"/> 
+  	<antcall target="generateSql"/>
+	<antcall target="generateQuery"/>
+	<antcall target="generateEnum"/>
+  	<antcall target="cleantemp"/>
+  </target>
+-->
+  <!-- ================================================================ -->
+  <!-- 初始化任务                                                                 -->
+  <!-- ================================================================ -->
+	<target name="init-tasks" description="==> 生成代码前的初始化工作">
+	    <taskdef name="zhnt"
+	      classname="org.apache.torque.task.TorqueObjectModelTask">
+	        <classpath refid="classpath"/>
+	    </taskdef>
+	</target>
+	
+	<!--生成JAVA代码-->  
+    <target name="generateJava" depends="init-tasks" description="==> 生成JAVA代码的任务">
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| 自动生成基于NtMast框架的JAVA代码！                 |"/>
+    <echo message="| NtMast应用架构代码生成器 2016/07/13         |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <zhnt
+      contextProperties="${build.properties}"
+      controlTemplate="${javaControlTemplate}"
+      outputDirectory="${output.home}/${outputJava}"
+      templatePath="${template.path}"
+      outputFile="java-report.txt"
+      targetPackage="${topPackage}"
+      xmlFile="${schema.path}/${schema.name}"
+      targetDatabase="${database}"
+    />    
+    </target>
+	
+	<!--生成配置文件-->  
+    <target name="generateConf" depends="init-tasks" description="==> 生成配置文件的任务">
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| 自动生成基于NtMast框架的配置文件！                 |"/>
+    <echo message="| NtMast应用架构代码生成器 2016/07/13        |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <zhnt
+      contextProperties="${build.properties}"
+      controlTemplate="${confControlTemplate}"
+      outputDirectory="${output.home}/${outputConf}"
+      templatePath="${template.path}"
+      outputFile="java-report.txt"
+      targetPackage="${topPackage}"
+      xmlFile="${schema.path}/${schema.name}"
+      targetDatabase="${database}"
+    />    
+    </target>
+
+	<!--生成JSP代码-->  
+    <target name="generateJsp" depends="init-tasks" description="==> 生成JSP代码的任务">
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| 自动生成基于NtMast框架的JSP代码！                  |"/>
+    <echo message="| NtMast应用架构代码生成器 2016/07/13        |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <zhnt
+      contextProperties="${build.properties}"
+      controlTemplate="${jspControlTemplate}"
+      outputDirectory="${output.home}/${outputJsp}"
+      templatePath="${template.path}"
+      outputFile="jsp-report.txt"
+      targetPackage="${topPackage}"
+      xmlFile="${schema.path}/${schema.name}"
+      targetDatabase="${database}"
+    />    
+    </target>
+
+	<!--生成SQL代码-->  
+    <target name="generateSql" depends="init-tasks" description="==> 生成SQL代码的任务">
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| 自动生成基于NtMast框架的SQL代码！                  |"/>
+    <echo message="| NtMast应用架构代码生成器 2016/07/13        |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <zhnt
+      contextProperties="${build.properties}"
+      controlTemplate="${sqlControlTemplate}"
+      outputDirectory="${output.home}/${outputSql}"
+      templatePath="${template.path}"
+      outputFile="sql-report.txt"
+      targetPackage="${topPackage}"
+      xmlFile="${schema.path}/${schema.name}"
+      targetDatabase="${database}"
+    />    
+    </target>
+
+	<!--生成枚举值代码-->  
+    <target name="generateEnum" depends="init-tasks" description="==> 生成枚举值代码的任务">
+    <echo message="+------------------------------------------+"/>
+    <echo message="|                                          |"/>
+    <echo message="| 自动生成基于NtMast框架的枚举值代码！                 |"/>
+    <echo message="| NtMast应用架构代码生成器 2016/07/13        |"/>
+    <echo message="|                                          |"/>
+    <echo message="+------------------------------------------+"/>
+
+    <zhnt
+      contextProperties="${build.properties}"
+      controlTemplate="${enumControlTemplate}"
+      outputDirectory="${output.home}/${outputEnum}"
+      templatePath="${template.path}"
+      outputFile="java-report.txt"
+      targetPackage="${topPackage}"
+      xmlFile="${schema.path}/${schema.name}"
+      targetDatabase="${database}"
+    />    
+    </target>
+	
+	<!-- ================================================================== -->
+    <!-- 临时文件清除(report文本文件)                                           -->
+    <!-- ================================================================== -->
+     <target name="cleantemp"   description="==>清除临时文件任务">
+    	<property name="del.dir" value="./out"/>
+    	<delete>
+    		<fileset dir="${del.dir}" includes="**/*-report.txt" />
+    	</delete>
+    </target>  
+</project>

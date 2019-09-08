@@ -1,0 +1,34 @@
+#set($num=0)
+#foreach ( $col in $table.Columns )
+#if ( $col.isPrimaryKey() )
+#set($num = $num+1)
+#end
+#end
+#set($multiPk=false)
+#if($num > 1)
+#set($multiPk=true)
+#end
+#set ( $num= 0 )
+#if($multiPk)
+String pkSemi=req.getParameter("primaryKey");
+		String [] args=StringUtils.split(pkSemi,":");
+#foreach ( $col in $table.PrimaryKeys )
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int" )
+		int ${strings.lowercaseFirstLetter($col.JavaName)} = Integer.parseInt(args[$num]);
+#else   
+		String ${strings.lowercaseFirstLetter($col.JavaName)} = args[$num];
+#end
+#set ( $num=$num +1 )
+#end
+#else
+String pkargs=req.getParameter("primaryKey");
+#foreach ( $col in $table.PrimaryKeys )
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int" )
+		int ${strings.lowercaseFirstLetter($col.JavaName)} = Integer.parseInt(pkargs);
+#else   
+		String ${strings.lowercaseFirstLetter($col.JavaName)} = pkargs;
+#end
+#end
+#end

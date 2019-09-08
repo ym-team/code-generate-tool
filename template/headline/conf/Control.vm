@@ -1,0 +1,78 @@
+#set ($basePath = $generator.OutputPath)
+#foreach ($databaseModel in $appData.Databases)
+#foreach ($table in $databaseModel.Tables)
+#set ( $tblName = $table.JavaName.toLowerCase() )
+#set ( $firstcap=$table.Name.toLowerCase() )
+#if ( $table.pkg )
+#set ( $tblPackage = $table.pkg )
+#else
+#set ( $tblPackage = $tblName )
+#end
+#if ( $table.JspPath )
+#set ( $pkjsp = "${table.JspPath}" )
+#else
+#set ( $pkjsp = "${tblPackage}" )
+#end
+ 
+##主从表生成配置文件开始
+#if($table.hasHead() || $table.hasLine())
+ 
+##conf开始
+#set ( $pkbaseconf = "${tblPackage}" )
+#set ( $baseProperties = ".tables" )
+#set ( $properties = $strings.getPackageAsPath($baseProperties))
+#set ( $path = $strings.getPackageAsPath($pkbaseconf))
+$files.mkdir("$outputDirectory/$path") 
+$files.mkdir("$outputDirectory/$properties") 
+
+#set ( $fname = "${table.JavaName.toLowerCase()}conf.xml" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseconf)}$fname" )   
+$generator.parse("headline/java/conf/Conf.vm",$path,"table",$table)
+##conf结束
+
+##资源文件开始
+#set ( $fname = "${firstcap}.properties" )
+#set ( $path = "${strings.getPackageAsPath($baseProperties)}$fname" )
+$generator.parse("headline/jsp/Properties.vm",$path,"table",$table)
+##资源文件结束
+## action 文件开始
+#set ( $fname = "struts-${table.JavaName.toLowerCase()}.xml" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseconf)}$fname" )   
+$generator.parse("single/java/conf/action.vm",$path,"table",$table)
+## action 文件结束
+
+ 
+##主从表生成配置文件结束
+#else
+############################
+##单表生成配置文件开始
+
+##资源文件开始
+#set ( $fname = "${firstcap}.properties" )
+#set ( $path = "${strings.getPackageAsPath($baseProperties)}$fname" )
+$generator.parse("single/jsp/Properties.vm",$path,"table",$table)
+##资源文件结束
+
+## spring 文件开始
+#set ( $path = "${strings.getPackageAsPath($pkbaseconf)}$fname" )   
+$generator.parse("single/java/conf/action.vm",$path,"table",$table)
+## spring 文件结束
+
+
+##conf开始#########################################g
+#set ( $pkbaseconf = "${tblPackage}" )
+#set ( $baseProperties = ".tables" )
+#set ( $properties = $strings.getPackageAsPath($baseProperties))
+#set ( $path = $strings.getPackageAsPath($pkbaseconf))
+$files.mkdir("$outputDirectory/$path") 
+$files.mkdir("$outputDirectory/$properties") 
+
+#set ( $fname = "${table.JavaName.toLowerCase()}Entity-mapper.xml" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseconf)}$fname" )   
+$generator.parse("single/java/conf/Conf.vm",$path,"table",$table)
+##conf结束
+##单表生成配置文件结束
+############################
+#end
+#end
+#end

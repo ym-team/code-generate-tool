@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+#if ( $table.Line )
+#set ( $lineTable = ${table.LineTable} )
+#else
+#set ( $headTable = ${table.HeadTable} )
+#end
+
+<beans>
+#set ( $package = "${topPackage}${table.pkg}" ) 
+#if ( $table.JspPath )
+#set ( $pkjsp = "${table.JspPath}" )
+#else
+#set ( $pkjsp = "${package}" )
+#end
+#set($detailTable="")
+#set($lineFlag=false)
+#if($table.hasLine())
+#set($detailTable=$table.LineTable)
+#foreach($col in $detailTable.Columns)
+#if($col.hasEnumValue())
+#set($lineFlag=true)
+#end
+#end
+#end
+#set( $have=0 )
+#set( $pkHave=0 )
+#foreach($col in $table.Columns)
+#if($col.hasEnumValue())
+#set( $have=1 )
+#elseif( $col.isForeignKey() )
+#set( $pkHave=1 )
+#end
+#end
+<!-- ${table.chineseDescription}-->
+<!--***********************jdbcdao配置************-->
+	<bean id="${strings.lowercaseFirstLetter(${table.JavaName})}Dao" class="${package}.dao.impl.${table.JavaName}JdbcDao">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+
+<!--***********************service配置***********-->
+	<bean id="${strings.lowercaseFirstLetter(${table.JavaName})}Service" parent="jdbcTransactionProxy">
+		<property name="target">
+		<bean  class="${package}.service.impl.${table.JavaName}ServiceImpl"> 
+			<property name="${strings.lowercaseFirstLetter(${table.JavaName})}Dao"><ref bean="${strings.lowercaseFirstLetter(${table.JavaName})}Dao"/></property>   	
+#if($table.hasLine())
+<!-- ${lineTable.chineseDescription}--><property name="${strings.lowercaseFirstLetter(${lineTable.JavaName})}Dao"><ref bean="${strings.lowercaseFirstLetter(${lineTable.JavaName})}Dao"/></property>   	
+#end
+		</bean>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,33 @@
+#set($detailTable="")
+#set($lineFlag=false)
+#if($table.hasLine())
+#set($detailTable=$table.LineTable)
+#foreach($col in $detailTable.Columns)
+#if($col.hasEnumValue())
+#set($lineFlag=true)
+#end
+#end
+#end
+#set( $have=0 )
+#foreach($col in $table.Columns)
+#if($col.hasEnumValue())
+#set( $have=1 )
+#end
+#end
+--# $table.name 表($table.chineseDescription) 的枚举值
+#if($have==1 || $lineFlag)
+#foreach($col in $table.Columns)
+#set($n=0)
+#if($col.hasEnumValue())
+--增加数据字典类型
+INSERT INTO PT_CODE_TYPE(CODE_TYPE,CODE_TYPE_NAME) VALUES('${table.name}.${col.JavaName.toUpperCase()}','$col.chineseDescription');
+--增加数据字典值
+#set($n=0)
+#foreach ($enum in $col.EnumValueList )
+INSERT INTO PT_CODE_TYPE_VALUE (CODE,NAME,CODE_TYPE,DESCRIPTION,IN_USE)  VALUES('$col.EnumNameList.get($n)','$enum','${table.name}.${col.JavaName.toUpperCase()}','$enum','1');
+#set($n=$n+1)
+#end
+
+#end
+#end
+#end

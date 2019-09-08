@@ -1,0 +1,15 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.dao.interfaces;
+
+import com.plantform.sys.syscode.dao.BaseDao;
+import ${package}.entity.${table.JavaName}Entity;
+
+/**
+ * @author oymw
+ * @date [$now]
+ * @desc 本类为${table.chineseDescription}的Dao接口
+ */
+ 
+public interface I${table.JavaName}Dao extends BaseDao<${table.JavaName}Entity>{
+
+}

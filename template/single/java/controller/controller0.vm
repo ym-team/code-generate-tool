@@ -1,0 +1,163 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.controller;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import red.sea.commons.jdbc.db.adapter.Page;
+import red.sea.commons.jdbc.db.adapter.PageInfo;
+import red.sea.commons.util.BeanTool;
+import red.sea.commons.util.DateConverter;
+import red.sea.commons.util.IntConverter;
+import ${package}.data.${table.JavaName};
+import ${package}.service.I${table.JavaName}Service;
+import ${package}.view.${table.JavaName}View;
+
+/**
+ * @author cyy
+ * @date [$now]
+ * 业务实现类
+ */
+@org.springframework.stereotype.Controller
+@RequestMapping("/${table.JavaName}.mc")
+@SuppressWarnings({"unchecked","rawtypes"})
+public class ${table.JavaName}Controller {
+
+	@InitBinder 
+    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {  
+        binder.registerCustomEditor(Date.class, DateConverter.getInstance()); 
+        binder.registerCustomEditor(int.class, IntConverter.getInstance());
+        binder.registerCustomEditor(long.class, IntConverter.getInstanceLong());
+    }
+
+	@RequestMapping(params="method=query")
+	public @ResponseBody List<Object> query( HttpServletRequest req, HttpServletResponse resp ) throws Exception {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		List<Object> list = ${strings.lowercaseFirstLetter($table.JavaName)}Service.getAll${table.JavaName}NoPage(req.getParameterMap());
+		//非字符串的返回值，则使用 @ResponseBody 则默认为 json 对象返回
+		return list; 
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(params="method=getAllPage${table.JavaName}") 
+	public String getAllPage${table.JavaName}( HttpServletRequest req, HttpServletResponse resp, Page page ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		Map<Object,Object> map = req.getParameterMap();
+		Page g = ${strings.lowercaseFirstLetter($table.JavaName)}Service.getAllPage${table.JavaName}( new PageInfo( page.getStart(), page.getStart()+page.getPageSize()-1 ), map );
+		req.setAttribute( "PageInfo", new PageInfo( page.getStart(), page.getStart()+page.getPageSize()-1) );
+		req.setAttribute( "Page", g );
+		req.setAttribute( "list", g.getDatas() );
+		//自动在后面追加 .jsp 的后缀
+		return "/jsp/${table.JspPath}/$table.Name.toLowerCase()_list";
+	}
+	
+	@RequestMapping(params="method=delete${table.JavaName}")
+	@ResponseBody
+	public int delete${table.JavaName}( HttpServletRequest req, HttpServletResponse resp ) {
+		String PK = req.getParameter( "PK" );
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		int result = ${strings.lowercaseFirstLetter($table.JavaName)}Service.delete${table.JavaName}( PK );
+		return result;
+	}
+	
+	@RequestMapping(params="method=edit${table.JavaName}") 
+	public String edit${table.JavaName}( HttpServletRequest req, HttpServletResponse resp ) {
+		String #parse("pk/pk.vm") = req.getParameter( "#parse("pk/pk.vm")" );
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)} = ${strings.lowercaseFirstLetter($table.JavaName)}Service.get${table.JavaName}View( #parse("pk/pk.vm") );
+		req.setAttribute( "${table.JavaName}", ${strings.lowercaseFirstLetter($table.JavaName)} );
+		//自动在后面追加 .jsp 的后缀
+		return "/jsp/${table.JspPath}/$table.Name.toLowerCase()_edit";
+	}
+	
+	@RequestMapping(params="method=detail${table.JavaName}") 
+	public String detail${table.JavaName}( HttpServletRequest req, HttpServletResponse resp ) {
+		String #parse("pk/pk.vm") = req.getParameter( "#parse("pk/pk.vm")" );
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)} = ${strings.lowercaseFirstLetter($table.JavaName)}Service.get${table.JavaName}View( #parse("pk/pk.vm") );
+		req.setAttribute( "${table.JavaName}", ${strings.lowercaseFirstLetter($table.JavaName)} );
+		//自动在后面追加 .jsp 的后缀
+		return "/jsp/${table.JspPath}/$table.Name.toLowerCase()_detail";
+	}
+	
+	
+	
+	@RequestMapping(params="method=insert${table.JavaName}")
+	@ResponseBody
+	public ${table.JavaName}View insert${table.JavaName}( HttpServletRequest req, HttpServletResponse resp, @ModelAttribute ${table.JavaName}View ${strings.lowercaseFirstLetter($table.JavaName)} ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		${table.JavaName}View result = ${strings.lowercaseFirstLetter($table.JavaName)}Service.insert${table.JavaName}( ${strings.lowercaseFirstLetter($table.JavaName)} );
+		return result;
+	}
+	
+	@RequestMapping(params="method=update${table.JavaName}")
+	@ResponseBody
+	public int update${table.JavaName}( HttpServletRequest req, HttpServletResponse resp, @ModelAttribute ${table.JavaName}View ${strings.lowercaseFirstLetter($table.JavaName)} ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		int result = ${strings.lowercaseFirstLetter($table.JavaName)}Service.update${table.JavaName}( ${strings.lowercaseFirstLetter($table.JavaName)} );
+		return result;
+	}
+	
+	@RequestMapping(params="method=insert${table.JavaName}Jsp")
+	public String insert${table.JavaName}Jsp( HttpServletRequest req, HttpServletResponse resp, @ModelAttribute ${table.JavaName}View ${strings.lowercaseFirstLetter($table.JavaName)} ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		${table.JavaName}View result = ${strings.lowercaseFirstLetter($table.JavaName)}Service.insert${table.JavaName}( ${strings.lowercaseFirstLetter($table.JavaName)} );
+		if( result != null ) {
+			req.setAttribute( "result", true );
+		} else {
+			req.setAttribute( "result", false );
+		}
+		return "redirect:/${table.JavaName}.mc?method=getAllPage${table.JavaName}";
+	}
+	
+	@RequestMapping(params="method=update${table.JavaName}Jsp")  
+	public String update${table.JavaName}Jsp( HttpServletRequest req, HttpServletResponse resp, @ModelAttribute ${table.JavaName}View ${strings.lowercaseFirstLetter($table.JavaName)} ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		int result = ${strings.lowercaseFirstLetter($table.JavaName)}Service.update${table.JavaName}( ${strings.lowercaseFirstLetter($table.JavaName)} );
+		if( result > 0 ) {
+			req.setAttribute( "result", true );
+		} else {
+			req.setAttribute( "result", false );
+		}
+		return "redirect:/${table.JavaName}.mc?method=getAllPage${table.JavaName}";
+	}
+	
+	@RequestMapping(params="method=ajaxList")
+	public String ajaxList( HttpServletRequest req, HttpServletResponse resp ) {
+		return "/jsp/${table.JspPath}/$table.Name.toLowerCase()_ajax_list";
+	}
+	
+	//返回ajax数据
+	@RequestMapping(params="method=ajax")
+	public String ajax( HttpServletRequest req, HttpServletResponse resp, Page page ) {
+		I${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Service =(I${table.JavaName}Service) BeanTool.getBean( "${strings.lowercaseFirstLetter($table.JavaName)}Service" );
+		Map<Object,Object> map = req.getParameterMap();
+		Page g = ${strings.lowercaseFirstLetter($table.JavaName)}Service.getAllPage${table.JavaName}( new PageInfo( page.getStart(), page.getStart()+page.getPageSize()-1 ), map );
+	    resp.setContentType("text/html;charset=UTF-8");
+		try {
+			// 直接返回自己组织的json 对象，不会出现乱码
+			resp.getWriter().print(g.toString());
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("出错。。。。"+System.currentTimeMillis());
+		}
+	}
+    
+}

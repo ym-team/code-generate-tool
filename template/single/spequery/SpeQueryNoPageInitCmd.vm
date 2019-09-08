@@ -1,0 +1,68 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+ 
+package ${package}.query;
+//导入java类
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ${package}.service.I${table.JavaName}Service;
+import net.mast.waf.mvc.QueryCommandSupportNoPage;
+import net.mast.waf.mvc.QueryHelper;
+/**
+ * 功能:本类为${table.chineseDescription}的QueryCommand
+ *
+ * @author  请务必填写
+ * @date    [$now]
+ *
+ * $Id$
+ */
+public class ${table.JavaName}QueryNoPageInitCmd extends QueryCommandSupportNoPage {
+    private static Log log = LogFactory.getLog(${table.JavaName}QueryNoPageInitCmd.class);
+    private I${table.JavaName}Service ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service = null;
+
+    /**
+     * 无翻页初始化特殊查询	${table.chineseDescription}
+     * @param req
+     * @param rep
+     * @param helper
+     * @param map
+     * @return
+     */
+    public String query(
+            HttpServletRequest req, 
+            HttpServletResponse rep,
+            QueryHelper helper, 
+            Map map) 
+	    	throws Exception {
+	        helper.setDatas(get${table.JavaName}Service().getAll${table.JavaName}NoPage(map)); 
+	        return "speQuery.queryNoPageInit";
+    }
+
+    /**
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     */
+    public void afterPropertiesSet() throws Exception {
+        super.afterPropertiesSet();
+        if (get${table.JavaName}Service() == null) {
+            throw new RuntimeException("${table.JavaName}QueryNoPageInitCmd配置错误:属性customerService不能为空");
+        }
+    }
+
+    /**
+     * @return
+     */
+    public I${table.JavaName}Service get${table.JavaName}Service() {
+        return ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service;
+    }
+
+    /**
+     * @param service
+     */
+    public void set${table.JavaName}Service(I${table.JavaName}Service service) {
+        ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service = service;
+    }
+}

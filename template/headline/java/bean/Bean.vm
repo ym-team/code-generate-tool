@@ -1,0 +1,137 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.data;
+//导入 java 类
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.*;
+#if($table.hasHead())
+import net.mast.web.taglib.util.IDelete;
+#end
+
+
+/**
+ * 功能:本类${table.chineseDescription}数据DataBean类1234
+ */
+#if($table.hasHead())
+public class ${table.JavaName} implements Serializable,IDelete {
+#else
+public class ${table.JavaName} implements Serializable{
+#end
+ #if($table.hasLine())
+  //定义 行数据集合
+  protected List list${table.LineTable.JavaName} = new ArrayList();
+  #end
+ #foreach ($col in $table.Columns)
+  #set ( $cjtype = $col.JavaType )
+  #set ( $clo=$col.Name.toLowerCase() )
+  #set ($defVal = "")
+  #if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+    #set ( $quote = '' )
+    #if ( $cjtype == "String" ) 
+      #set ( $quote = '"' )
+    #end
+    #set ( $defaultValue = $col.DefaultValue )
+    #if ( $cjtype == "boolean" )
+      #if ( $defaultValue == "1" || $defaultValue == "Y" )
+        #set ( $defaultValue = "true" )
+      #elseif ( $defaultValue == "0" || $defaultValue == "N" )
+        #set ( $defaultValue = "false" )
+      #end
+    #end
+    #set ($defVal = "=$quote$defaultValue$quote")
+  #end
+ 	// $col.chineseDescription
+    #if ( $col.JavaType=="boolean" )
+    protected String ${strings.lowercaseFirstLetter($col.JavaName)};
+    #else
+    protected $cjtype ${strings.lowercaseFirstLetter($col.JavaName)};
+    #end        
+#end    
+    /**
+    * ${table.JavaName}构造函数
+    */
+	public ${table.JavaName}() {
+        super();
+    }
+#if($table.hasHead())
+      /**
+	* 是否删除标志
+	*/
+    protected String isDelete = "0";
+#end
+
+     #if($table.hasLine())	
+	/**
+	 * @return
+	 */
+	public List getList${table.LineTable.JavaName}() {
+		return list${table.LineTable.JavaName};
+	}
+
+	/**
+	 * @param list
+	 */
+	public void setList${table.LineTable.JavaName}(List list) {
+		list${table.LineTable.JavaName} = list;
+	}
+
+     #end
+
+#foreach ($col in $table.Columns)
+  #set ( $cfc=$col.JavaName )
+  #set ( $clo=$col.Name.toLowerCase() )
+  #set ( $cjtype = $col.JavaType )
+    
+    /**
+    * 属性 $cfc 的get方法sss
+    * @return $cjtype
+    */
+    #if ( $col.JavaType=="boolean" )
+    public String get${cfc}() {
+        return ${strings.lowercaseFirstLetter($col.JavaName)};
+    }
+    #else
+    public $col.JavaType get${cfc}() {
+        return ${strings.lowercaseFirstLetter($col.JavaName)};
+    }
+    #end
+
+    /**
+    * 属性 $cfc 的set方法
+    */
+    #if ( $col.JavaType=="boolean" )
+    public void set${cfc} (String ${strings.lowercaseFirstLetter($col.JavaName)}) {
+        this.${strings.lowercaseFirstLetter($col.JavaName)} = ${strings.lowercaseFirstLetter($col.JavaName)};
+    }
+    #else
+    public void set${cfc}($col.JavaType ${strings.lowercaseFirstLetter($col.JavaName)}) {
+        this.${strings.lowercaseFirstLetter($col.JavaName)} = ${strings.lowercaseFirstLetter($col.JavaName)};
+    }    
+    #end    
+        
+#end 
+
+#if($table.hasHead())
+    /**
+	* 是否删除标志的 set 方法
+	*/
+    public void setIsDelete (String isDelete) {
+        this.isDelete = isDelete;
+    }
+    public String getIsDelete() {
+        return this.isDelete;
+    }    
+#end
+  
+   	public String toString(){
+   	    StringBuffer sb = new StringBuffer();
+#set ($comma=false)
+#foreach ($col in $table.Columns)
+		// $col.chineseDescription
+        sb.append("#if($comma)',#else {#end '${strings.lowercaseFirstLetter(${col.JavaName})}':'"+ ${strings.lowercaseFirstLetter(${col.JavaName})});
+#set ($comma = true)
+#end   	    
+        sb.append("'}");
+        return sb.toString();
+   	} 		
+}

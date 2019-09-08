@@ -1,0 +1,264 @@
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ page import="java.util.*"%>
+<%@page import="red.sea.platform.code.CodeFactory"%>
+<%@ page import="red.sea.commons.jdbc.db.adapter.PageInfo" %>
+<%@ page import="red.sea.commons.jdbc.db.adapter.Page" %>
+<%@ page import="${package}.data.${table.JavaName}" %>
+<%@ taglib uri="/WEB-INF/html.tld" prefix="html"%>
+<%
+	String contextPath = request.getContextPath();
+	request.setAttribute( "contextPath", contextPath );
+	Page pg = (Page) request.getAttribute("Page");
+	PageInfo pginfo = (PageInfo) request.getAttribute("PageInfo");
+	Map attributeMap = pg.getAttributeMap();
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<TITLE>${table.chineseDescription}查询</TITLE>
+	
+	<!-- 导入JS和CSS样式-->
+<script type="text/javascript" src="${contextPath}/skins/js/common/pubfunction.js"></script>
+<script type="text/javascript" src="${contextPath}/skins/library/jquery/jquery-1.7.2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="${contextPath}/skins/library/artDialog/skins/default.css">
+<script src="${contextPath}/skins/library/artDialog/jArtDialog.js"></script>
+<script type="text/javascript" src="${contextPath}/skins/js/common/list_common_js.js"></script>
+<!-- 新样式风格必须引入的 -->
+<link rel="stylesheet" type="text/css" href="${contextPath}/skins/library/bootstrap/css/bootstrap.min.css">
+<script src="${contextPath}/skins/library/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="${contextPath}/skins/style/css/common.css">
+<link rel="stylesheet" type="text/css" href="${contextPath}/skins/style/css/icon.css">
+
+<!-- 查询页面上有 checkbox的需要引入 -->
+<link rel="stylesheet" type="text/css"	href="${contextPath}/skins/library/iCheck-master/skins/square/blue.css">
+<script src="${contextPath}/skins/library/iCheck-master/icheck.js"></script>
+<script type="text/javascript" src="${contextPath}/skins/js/common/scroll_common_js.js"></script>
+	
+	<script type="text/javascript">
+		function delete${table.JavaName}(PK) {
+			jQuery.ajax({
+				url : "${table.JavaName}.mc?method=delete${table.JavaName}",
+				type : "post",
+				data : {PK:PK},
+				success : function(result) {
+					if (result > 0) {
+						alert("删除成功");
+						$("#start").val(0);
+						$("#searchForm").submit();
+					} else {
+						alert("删除失败");
+					}
+				},
+				error : function(result) {
+					alert("删除失败");
+				}
+			});
+		}
+		
+		function searchData(){
+			$("#start").val(0);
+			$("#searchForm").submit();
+		}
+		
+		$(function(){
+			$("#moreSearch").toggle(function(){
+				var cls = $(this).find("span").attr( "class" );
+				if( cls == "search_more" ) {
+					$(this).find("span").attr( "class", "search_more_on" );
+				} else {
+					$(this).find("span").attr( "class", "search_more" );
+				}
+				$("tr[class*=more]").show();
+			},function(){
+				$("tr[class*=more]").hide();
+				var cls = $(this).find("span").attr( "class" );
+				if( cls == "search_more" ) {
+					$(this).find("span").attr( "class", "search_more_on" );
+				} else {
+					$(this).find("span").attr( "class", "search_more" );
+				}
+			});
+		/* */
+			$('input:checkbox').iCheck({
+				 checkboxClass: 'icheckbox_square-blue',
+		         radioClass: 'iradio_square'
+				});
+		/**/
+			 $('#selectall_checkbox').on('ifClicked',
+		                function () {
+		                    $('input:checkbox').iCheck('toggle');
+		                });
+		
+			
+		});
+	</script>
+</head>
+<body>
+	<form name="searchForm" method="post" class="form-search" action="${contextPath}/${table.JavaName}.mc?method=getAllPage${table.JavaName}" id="searchForm">
+ 		<!-- 查询条件显示区域start -->
+ 		<div style="height: 50px;">
+					<table id="tblSearch" width="100%" border="0" cellpadding="0" cellspacing="0" >
+						<tr class="theight">
+						<td>
+							<button type="button" class="btn btn-primary" onclick="javascript:window.location.href='<%=contextPath%>/jsp/${table.JspPath}/${table.Name.toLowerCase()}_edit.jsp'">添加</button>
+						</td>
+						<td align="right">
+								<div class="controls asearch">
+#set ( $fkFlag=false )
+#set ( $fkPk="" )
+#foreach ( $col in $table.Columns )
+#if ( $col.isForeignKey() )
+#set ( $fk = $col.ForeignKey )
+#set ( $fTable = $table.Database.getTable($fk.ForeignTableName) )
+#foreach ( $fkcol in $fk.ForeignColumns )
+#if ( $fk.showCol.equals($fkcol) )
+#set ( $fkFlag=true )				
+#else
+#set ( $fkPk=$fkcol )
+#end
+#end
+#end
+#end
+#set ( $queryType = "" )
+#foreach ( $col in $table.Columns )
+#if ( $col.SearchShow )
+#if ( $col.JavaType=="int" )	
+#set ( $queryType = "Integer" )				
+#elseif ( $col.JavaType=="double" )		
+#set ( $queryType = "Double" )									
+#else	
+#set ( $queryType = "String" )				
+#end   
+#if ( $col.hasEnumValue()) 
+<%
+request.setAttribute("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}",CodeFactory.getCodeListByCodeType("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}"));
+%>
+							  	${col.chineseDescription}：
+					           	<select name="${col.Name.toLowerCase()}" >
+						        	<option value="">全部</option>
+						         	<html:options collection="${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}" value="name" key="code"
+						         	selected="${ param.${col.Name.toLowerCase()} }" />
+						         </select>
+#else    
+						    
+						    	<input type='text' class="input-small" name="${col.Name.toLowerCase()}" placeholder="${col.chineseDescription}" value="${ param.${col.Name.toLowerCase()} }"/>
+#end
+#end
+#end
+
+								<button type="button" onclick="javascript:searchData();" id="searchbtn"  class="btn btn-group-vertical">搜索</button>
+							</div>
+								
+							</td>
+						</tr>
+						
+					</table>
+			</div>
+			<!-- 查询条件显示区域end --> 
+			<!-- 数据显示列表start -->
+	        <div id="tableData" style="position: relative;height: 480px;overflow: auto;">
+				<div id="loading" style=" width:100%; height: 340px;position: absolute; top: 0; display:none;">
+					<div style="background-color: ; position: absolute; top: 50%; left: 50%; margin: -33px 0 0 -33px;">
+						<img src="skins/style/images/loading.gif" />
+					</div>
+				</div>
+				<div class="tabelist">
+					<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table table-hover table-condensed">
+	  					<thead>
+	                    	<tr height="22" class="tab_title_bg">
+	                        	<th align="center">
+	                            	<input name="selectall_checkbox" id="selectall_checkbox" type="checkbox" title="全选/取消" />
+	                            </th>
+	                            <!--表头循环开始 -->
+#set ( $flag=1 )
+#foreach ( $col in $table.Columns )
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.QueryShow && !$col.isForeignKey() )
+#if ( $col.hasEnumValue() )
+<%
+if(request.getAttribute("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}")==null){
+request.setAttribute("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}",CodeFactory.getCodeListByCodeType("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}"));
+}
+%>	
+
+								<!-- 枚举列 {$col.chineseDescription}-->   
+								<th align="center" rowName="$col.name.toLowerCase()" orderName="$col.name.toLowerCase():DESC" title='$col.chineseDescription'>$col.chineseDescription</th>
+#elseif ( $col.isPrimaryKey() )
+								<!-- 主键列{$col.chineseDescription}-->   
+								<th align="center" rowName="$col.name.toLowerCase()" orderName="$col.name.toLowerCase():DESC" title='$col.chineseDescription'>$col.chineseDescription</th>
+#else
+								<!-- 一般列{$col.chineseDescription}-->   
+								<th align="center" rowName="$col.name.toLowerCase()" orderName="$col.name.toLowerCase():DESC" title='$col.chineseDescription'>$col.chineseDescription</th>
+#end  
+#end
+#end
+								<!--表头循环结束 -->	
+	                    		<th align="center">操 作</th>                    
+							</tr>
+						</thead>
+	                   	<tbody>
+						<%
+							List list = pg.getDatas();
+							${table.JavaName} view = new ${table.JavaName}();
+								for (int i = 0; i < list.size(); i++) {
+									view = (${table.JavaName}) list.get(i);
+									if (i % 2 == 1) {
+						%>
+										<tr class="blue">
+						<%
+									} else {
+						%>
+										<tr>
+						<%
+									}
+						%>
+											<th align="center">
+				                            	<input name="selectall_checkbox" type="checkbox" title="全选/取消" />
+				                            </th>
+					
+#set ( $flag=1 )
+#foreach ( $col in $table.Columns )
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+#set ( $cfc=$col.JavaName )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.QueryShow && !$col.isForeignKey() )
+#if ( $col.hasEnumValue() )
+											<!-- 枚举列{$col.chineseDescription}-->   
+											<td>
+											<html:label name="${col.Name.toLowerCase()}" collection="${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}"  value="<%=view.get$cfc()%>" labelKey="code" onlyName="true" labelProperty="name"/>
+											</td>
+#elseif ( $col.isPrimaryKey() )
+											<!-- 主键列{$col.chineseDescription}-->   
+											<td><%=view.get$cfc()%></td>
+#else
+											<!-- 一般列{$col.chineseDescription}-->   
+											<td><%=view.get$cfc()%></td>
+#end  
+#end
+#end  
+
+											<td>
+												<a class="o-edit" href="${table.JavaName}.mc?method=edit${table.JavaName}&#parse("pk/pk.vm")=<%=#parse("pk/mutiPk.vm")%>" title="编辑"></a> 
+												<a class="cbtn o-trash" href="javascript:void(0)" onclick="delete${table.JavaName}('<%=#parse("pk/mutiPk.vm")%>')" title="删除"></a>
+											    <a class="o-view" href="${table.JavaName}.mc?method=detail${table.JavaName}&#parse("pk/pk.vm")=<%=#parse("pk/mutiPk.vm")%>" title="详情"></a> 
+												
+											</td>
+										</tr>
+						<%
+							}
+						%>
+						</tbody>      
+					</table>
+					</div>
+			    </div>
+	              <div style="height:50px;position: fixed;bottom: 0px;right: 2px;background-color: #f9fbff;width: 100%;padding-right:17px;border-top:1px solid #e2e2e2;">
+	    	         <jsp:include page="/jsp/platform/page.jsp" />
+		          </div>
+
+	</form>
+</body>
+</html>

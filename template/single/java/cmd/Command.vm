@@ -1,0 +1,152 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+
+package ${package}.action;
+//导入java类
+import ${package}.service.I${table.JavaName}Service;
+import ${package}.view.${table.JavaName}View;
+
+import java.util.List;
+import java.math.BigDecimal;
+import java.io.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import net.mast.waf.ComponentFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import net.mast.waf.mvc.MultiCommand;
+import net.mast.waf.mvc.ViewHelper;
+import net.mast.util.IErrorHandler;
+import net.mast.util.IMessageHandler;
+import net.mast.util.StringUtils;
+/**
+ * 功能:本类为${table.chineseDescription}的action
+ * Action中最好不要有设计事物的程序处理， 只做MVC转向用， 涉及事物的业务逻辑在Service中的事物模板中完成
+ * @author  huangdos
+ * @date    [$now]
+ */
+public class ${table.JavaName}Action extends MultiCommand {
+    private static Log log = LogFactory.getLog(${table.JavaName}Action.class);
+    private I${table.JavaName}Service ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service = null;
+    /**
+     * 新增  ${table.chineseDescription}  初始化
+     */ 
+    public String forinsert(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {
+        ${table.JavaName}View vi= new ${table.JavaName}View();
+        viewHelper.setView(vi);
+        return "${table.JavaName.toLowerCase()}View.forinsert";
+    }
+    /**
+     * 修改 ${table.chineseDescription}  初始化
+     */ 
+    public String forupdate(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {		
+		#parse("pk/pkView.vm")		
+        viewHelper.setView(get${table.JavaName}Service().get${table.JavaName}View(#parse("pk/pk.vm")));        
+        return "${table.JavaName.toLowerCase()}View.forupdate";
+    }
+    /**
+     * 查 ${table.chineseDescription}   明细
+     */
+    public String detail(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {        
+        #parse("pk/pkView.vm")
+        viewHelper.setView(get${table.JavaName}Service().get${table.JavaName}View(#parse("pk/pk.vm")));
+        return "${table.JavaName.toLowerCase()}View.detail";
+    }
+     /**
+     * 新增	${table.chineseDescription}
+     */
+    public String insert(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {        
+        ${table.JavaName}View viewin=(${table.JavaName}View)viewHelper.getView();
+        //设置主键
+        viewHelper.setView(get${table.JavaName}Service().insert${table.JavaName}(viewin));        
+        return "${table.JavaName.toLowerCase()}View.detail";
+    }
+    /**
+     * 新增 ${table.chineseDescription} 继续
+     */
+    public String insertContinue(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {    	
+        ${table.JavaName}View viewin=(${table.JavaName}View)viewHelper.getView();	
+        //设置主键 
+        get${table.JavaName}Service().insert${table.JavaName}(viewin); 
+        //${table.JavaName}View vi= new ${table.JavaName}View();
+        viewHelper.setView(viewin);       
+        return "${table.JavaName.toLowerCase()}View.forinsert";
+    }
+	/**
+     * 修改 ${table.chineseDescription}
+     */
+    public String update(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {    	 
+		viewHelper.setView(get${table.JavaName}Service().update${table.JavaName}((${table.JavaName}View) viewHelper.getView()));
+        return "${table.JavaName.toLowerCase()}View.detail";
+    }
+     /**
+     * 删除 ${table.chineseDescription}
+     */
+    public String delete(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) {		
+	/*		#parse("pk/pkDel.vm")   */
+		String [] delPK=req.getParameterValues("primaryKey");
+		get${table.JavaName}Service().batchdelete${table.JavaName}(delPK);      
+        return "${table.JavaName.toLowerCase()}ViewChain.success";
+    }
+    //检查某个编号是否已经被使用
+    public String isExist(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        IErrorHandler errorHandler,
+        IMessageHandler messageHandler,
+        ViewHelper viewHelper) throws IOException {        
+		#parse("pk/pkView.vm")		
+		Object ob=null;
+		try {
+			ob=get${table.JavaName}Service().get${table.JavaName}View(#parse("pk/pk.vm"));        
+		} catch (Exception e) {			
+			 return null;//没查到，未被使用,直接返回空
+		}   
+		rep.getWriter().print(ob);//查找，并且已经被使用		
+        return null;
+    }
+    
+    public I${table.JavaName}Service get${table.JavaName}Service() {
+    	if(${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service==null)
+    		${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service=(I${table.JavaName}Service) ComponentFactory.getBean("${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service");
+        return ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service;
+    }
+
+    public void set${table.JavaName}Service(I${table.JavaName}Service service) {
+        ${table.JavaName.substring(0,1).toLowerCase().concat(${table.JavaName.substring(1)})}Service = service;
+    }
+}

@@ -1,0 +1,49 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+#if ( $table.Line )
+#set ( $lineTable = ${table.LineTable} )
+#else
+#set ( $lineTable = ${table.HeadTable} )
+#end
+package ${package}.utils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import ${package}.data.${table.JavaName};
+
+@SuppressWarnings("rawtypes")
+public class ${table.JavaName}RowMaper implements RowMapper{
+/**
+ * 对象关系映射，用在JdbcTemplate的query方法中,如果必要的话，请自行建立多个类似的对象进行对象关系映射
+ */
+	public Object mapRow(ResultSet rs, int num) throws SQLException {
+            ${table.JavaName} ${strings.lowercaseFirstLetter($table.JavaName)} = new ${table.JavaName}();
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $cjtype = $col.JavaType ) 
+			//$col.chineseDescription  type : $col.type  
+#if ( $col.JavaType=="boolean" )
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getString("$col.Name"));
+#elseif ($col.JavaType=="int")
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getInt("$col.Name"));
+#elseif ($col.JavaType=="double")
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getDouble("$col.Name"));
+#elseif ($col.JavaType=="byte[]")
+			//针对DB2数据库，如果不是DB2数据库，请自行修改下面一行以及相应databean的方法！
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getBlob("$col.Name"));
+#elseif ($col.JavaType=="Date")		
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getTimestamp("$col.Name"));
+#elseif ($col.JavaType.equals("String"))		
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getString("$col.Name"));
+#elseif ($col.JavaType.equals("BigDecimal"))		
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getBigDecimal("$col.Name"));							
+#else
+			${strings.lowercaseFirstLetter($table.JavaName)}.set${cfc}(rs.getObject("$col.Name"));    
+#end        
+#end 
+            return ${strings.lowercaseFirstLetter($table.JavaName)};
+
+    }
+
+}

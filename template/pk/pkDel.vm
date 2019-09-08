@@ -1,0 +1,38 @@
+#set($num=0)
+#foreach ( $col in $table.Columns )
+#if ( $col.isPrimaryKey() )
+#set($num = $num+1)
+#end
+#end
+#set($multiPk=false)
+#if($num > 1)
+#set($multiPk=true)
+#end
+String [] delPK=req.getParameterValues("primaryKey");
+#if($multiPk)
+		String [] args=null;
+		for (int i = 0; i < delPK.length; i++) {
+#set ( $num= 0 )
+		args=StringUtils.split(delPK[i],":");
+#foreach ($col in $table.PrimaryKeys)
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int")
+		int ${strings.lowercaseFirstLetter($col.JavaName)} = Integer.parseInt(args[$num]);
+#else   
+		String ${strings.lowercaseFirstLetter($col.JavaName)} = args[$num];
+#end
+#set ( $num=$num+1 )
+#end
+#else
+		for (int i = 0; i < delPK.length; i++) {
+#foreach ($col in $table.PrimaryKeys)
+#set ( $cfc=$col.JavaName )
+#if ( $col.JavaType=="int")
+		int ${strings.lowercaseFirstLetter($col.JavaName)} = Integer.parseInt(delPK[i]);
+#else   
+		String ${strings.lowercaseFirstLetter($col.JavaName)} = delPK[i];
+#end
+#end
+#end
+		get${table.JavaName}Service().delete${table.JavaName}(#parse("pk/pk.vm")); 
+		}

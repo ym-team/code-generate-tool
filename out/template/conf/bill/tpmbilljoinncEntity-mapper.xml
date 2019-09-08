@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- NAMESPACE必须和接口的类路径一样 -->
+
+<mapper namespace="com.evergrande.pm.bill.mapper.TestEntity-mapper">
+	<resultMap id="BaseResultMap" type="com.evergrande.pm.bill.entity.TPmBillJoinNcEntity">
+
+
+
+
+ 
+		
+		<id column="id" property="${col.JavaName}" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="name_address" property="nameAddress" jdbcType="VARCHAR" />
+	</resultMap>
+    <!-- 创建 -->
+ <insert id="insertSelective" parameterType="com.plantform.sys.syscode.entity.TestEntity">
+		insert into test
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="address != null">
+				address,
+			</if>
+			 <if test="nameAddress != null">
+				name_address
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+				#{address,jdbcType=VARCHAR},
+			</if>
+			 <if test="nameAddress != null">
+				#{nameAddress,jdbcType=VARCHAR}
+			</if>
+			 
+		</trim>
+	</insert>
+	
+	 
+  
+ 
+</mapper>

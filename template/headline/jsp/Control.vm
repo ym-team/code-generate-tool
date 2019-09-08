@@ -1,0 +1,80 @@
+#set ($basePath = $generator.OutputPath)
+#foreach ($databaseModel in $appData.Databases)
+#foreach ($table in $databaseModel.Tables)
+#set ( $tblName = $table.JavaName.toLowerCase() )
+#set ( $firstcap=$table.Name.toLowerCase() )
+#if ( $table.pkg )
+#set ( $tblPackage = $table.pkg )
+#else
+#set ( $tblPackage = $tblName )
+#end
+#if ( $table.JspPath )
+#set ( $pkjsp = "${table.JspPath}" )
+#else
+#set ( $pkjsp = "${tblPackage}" )
+#end
+#set ( $package = "${topPackage}${table.pkg}" )
+##主从表生成jsp代码开始
+#if($table.hasHead() || $table.hasLine())
+#if($table.hasLine())
+  
+#set ( $path = $strings.getPackageAsPath($pkjsp))
+$files.mkdir("$outputDirectory/$path")       
+
+#set ( $fname = "${firstcap}_detail.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+#$generator.parse("headline/jsp/Detail.vm",$path,"table",$table)
+
+#set ( $fname = "${firstcap}_forupdate.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("headline/jsp/Forupdate.vm",$path,"table",$table)
+
+#set ( $fname = "${firstcap}_edit.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("headline/jsp/edit.vm",$path,"table",$table)
+
+##生成查询开始
+#set ( $fname = "${firstcap}_list.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/list.vm",$path,"table",$table)  
+##生成单表初始化特殊查询结束
+
+
+#end
+    
+##主从表生成jsp代码结束
+#else
+##单表生成jsp代码开始
+   
+#set ( $path = $strings.getPackageAsPath($pkjsp))
+$files.mkdir("$outputDirectory/$path")       
+
+#set ( $fname = "${firstcap}_detail.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/Detail.vm",$path,"table",$table)
+
+#set ( $fname = "${firstcap}_edit.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/edit.vm",$path,"table",$table)
+
+
+##生成单表初始化特殊查询开始
+#set ( $fname = "${firstcap}_list.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/list.vm",$path,"table",$table)  
+##生成单表初始化特殊查询结束
+
+##生成单表ajax开始
+#set ( $fname = "${firstcap}_ajax_list.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/list_ajax.vm",$path,"table",$table)
+##生成单表ajax开始
+
+##set ( $fname = "${firstcap}_forinsert.jsp" )
+##set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+##$generator.parse("single/jsp/Forinsert.vm",$path,"table",$table) 
+
+##单表生成jsp代码结束
+#end
+#end
+#end

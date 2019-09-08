@@ -1,0 +1,230 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.model;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.io.Serializable;
+import java.util.List;
+import com.evergrande.common.utils.JsonUtil;
+
+
+/**
+ * @author czx
+ * @date [$now]
+ * @desc ${table.chineseDescription}
+ */
+public class ${table.JavaName}Model implements Serializable {
+
+
+	private static final long serialVersionUID = 1L;
+
+#if($table.hasLine())
+
+  private List list${table.LineTable.JavaName} = new ArrayList();
+#end
+#foreach ($col in $table.Columns)
+#set ( $cjtype = $col.JavaType )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ($defVal = "")
+#if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+#set ( $quote = '' )
+#if ( $cjtype == "String" ) 
+#set ( $quote = '"' )
+#end
+#set ( $defaultValue = $col.DefaultValue )
+#if ( $cjtype == "boolean" )
+#if ( $defaultValue == "1" || $defaultValue == "Y" )
+#set ( $defaultValue = "true" )
+#elseif ( $defaultValue == "0" || $defaultValue == "N" )
+#set ( $defaultValue = "false" )
+#end
+#end
+#set ($defVal = "=$quote$defaultValue$quote")
+#end
+      
+    /** 
+    *  $col.chineseDescription
+    */
+#if ( $col.JavaType=="boolean" )
+    private String ${strings.lowercaseFirstLetter(${col.JavaName})};
+#elseif ( $col.JavaType=="byte[]" )
+    private Blob ${strings.lowercaseFirstLetter(${col.JavaName})};
+#else
+    private $cjtype ${strings.lowercaseFirstLetter(${col.JavaName})};
+#end        
+#end
+    
+    /**
+    * ${table.JavaName}���캯��
+    */
+	public ${table.JavaName}Model() {
+        super();
+    }
+#if($table.hasHead())
+      /**
+	* 
+	*/
+    protected int isDelete;
+#end
+
+#if($table.hasLine())
+	//${table.chineseDescription}
+	public void add${table.LineTable.JavaName}(${table.LineTable.JavaName}DataBean line){
+		if(this.list${table.LineTable.JavaName} == null)
+			list${table.LineTable.JavaName} = new ArrayList();
+		list${table.LineTable.JavaName}.add(line);
+	}
+
+	public List getList${table.LineTable.JavaName}() {
+		return list${table.LineTable.JavaName};
+	}
+
+	public void setList${table.LineTable.JavaName}(List list) {
+		list${table.LineTable.JavaName} = list;
+	}
+#end
+
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType )
+#if ( $col.JavaType=="byte[]" )
+#set ( $cjtype = "Blob" )
+#end
+    
+    /**
+    *  $col.chineseDescription $col.Name  get
+    * @return $cjtype
+    */
+#if ( $col.JavaType=="boolean" )
+    public String get${cfc}(){
+        return ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="byte[]" )
+    public Blob get${cfc}() {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#else
+    public $col.JavaType get${cfc}() {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#end
+
+    /**
+    * $col.chineseDescription $col.Name  set
+    */
+#if ( $col.JavaType=="boolean" )
+    public void set${cfc} (String ${strings.lowercaseFirstLetter(${col.JavaName})}) {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="byte[]" )
+    public void set${cfc} (Blob ${strings.lowercaseFirstLetter(${col.JavaName})}) {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#else
+    public void set${cfc}($col.JavaType ${strings.lowercaseFirstLetter(${col.JavaName})}) {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }    
+#end    
+        
+#end 
+
+#if($table.hasHead())
+      /**
+	*  set 
+	*/
+    public void setIsDelete (int isDelete) {
+        this.isDelete = isDelete;
+    }
+    public int getIsDelete() {
+        return this.isDelete;
+    }    
+#end
+
+	/**
+	* 主键ids 用于in 查询
+	*/
+	private List<Long> listPkId;
+
+	/**
+	* 主键ids 用于in 查询
+	*/
+	public List<Long> getListPkId() {
+		return listPkId;
+	}
+
+	/**
+	* 主键ids 用于in 查询
+	*/
+	public void setListPkId(List<Long> listPkId) {
+		this.listPkId = listPkId;
+	}
+
+
+  	//JSON 
+   	public String toString() {
+		return JsonUtil.toJsonString(this);
+   	}
+   	
+   	
+   	
+   	
+#if($table.hasLine())
+	public List getLinesList(){
+		return this.list${table.LineTable.JavaName};
+	}
+	public DataBean[] getLinesArray(){
+		return (DataBean[])this.list${table.LineTable.JavaName}.toArray();
+	}
+	public int getLineSize(){
+		return this.list${table.LineTable.JavaName}.size();
+	}
+	public void setLinesByList(List lines){
+		this.list${table.LineTable.JavaName} = lines;
+	}
+	public DataBean getLine(int i){
+		return (DataBean)this.list${table.LineTable.JavaName}.get(i);
+	}
+	public void setLine(int idx, DataBean line){
+		this.list${table.LineTable.JavaName}.add(idx,line);
+	}
+	public void addLine(DataBean line){
+		this.list${table.LineTable.JavaName}.add(line);
+	}
+	public void setLinesByArray(DataBean[] lines){
+		this.list${table.LineTable.JavaName} = Arrays.asList(lines);
+	}	
+	public DataBean delLine(int idx){
+		return (DataBean)this.list${table.LineTable.JavaName}.remove(idx);
+	}
+#end
+
+
+ /**
+ ${table.JavaName}Model ${strings.lowercaseFirstLetter($table.JavaName)}Model = new ${table.JavaName}Model;
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType )
+#if ( $col.JavaType=="byte[]" )
+#set ( $cjtype = "Blob" )
+#end  
+   ${strings.lowercaseFirstLetter($table.JavaName)}Model.set${cfc} (${strings.lowercaseFirstLetter(${col.JavaName})});//$col.chineseDescription
+#end 
+ */
+ 
+ 
+  /**
+ ${table.JavaName}Model ${strings.lowercaseFirstLetter($table.JavaName)}Model = new ${table.JavaName}Model;
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType )
+#if ( $col.JavaType=="byte[]" )
+#set ( $cjtype = "Blob" )
+#end  
+   ${strings.lowercaseFirstLetter($table.JavaName)}Model.set${cfc} ("$col.chineseDescription");//$col.chineseDescription
+#end 
+ */
+
+
+}

@@ -1,0 +1,306 @@
+<%@ page contentType="text/html;charset=GBK" %>
+<%@ page import="net.mast.waf.ResourcesFactory"%>
+<%@ taglib uri="/tags/web-html" prefix="html"%>
+<%@ taglib uri="/tags/mast-bsp" prefix="bsp"%>
+<%@ taglib uri="/tags/web-mast" prefix="mast"%>
+<%@ taglib uri="/tags/web-grid" prefix="grid"%>
+#set ($dateHave=0)
+#foreach ( $col in $table.Columns )
+#if( $col.Format=="date"&&$dateHave==0)
+<%@ taglib uri="/tags/web-date" prefix="date"%>
+#set ($dateHave=1)
+#end
+#end
+#set ($dateHave=0)
+<HTML>
+<HEAD>
+<TITLE>${table.chineseDescription}增加</TITLE>
+<link rel="stylesheet" type="text/css" href="<mast:ui css='skin.css'/>">
+<link rel="stylesheet" type="text/css" href="<mast:ui css='editgrid.css'/>">
+#foreach ( $col in $table.Columns )
+#if( $col.Format=="date"&&$dateHave==0)
+#set ($dateHave=1)
+<link rel="stylesheet" type="text/css" href="<mast:ui css='date.css'/>">
+<script language="javascript" src="<mast:ui js='calendar.js'/>"></script>
+#end
+#end
+#set ($dateHave=0)
+<script language="javascript" src="<mast:ui js='mastfunction.js'/>"></script>
+<script language="javascript" src="<mast:ui js='grid.js'/>"></script>
+<script language="javascript">
+function check${table.JavaName}(){
+#foreach ( $col in $table.Columns )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)} )
+##-----------------boolean判断---------------##
+#if($col.isBooleanChar()||$col.isBooleanInt||$col.JavaType.toLowerCase()=="boolean")    
+	var ${clo} = document.forms[0].${clo};
+	var is${clo}Return=false;	  
+	if(${clo}.length>0){
+	     for(var k=0;k<${clo}.length;k++){
+	  	if(${clo}[k].checked){
+	  	     is${clo}Return=true;
+	  	     break;
+	  	}	  	
+	     }
+	}
+	if(!is${clo}Return){
+	     alert("请选择${col.chineseDescription}!"); 
+	     return false;
+	} 
+##-----------------------------------------##	
+#else
+#if ($col.InsertShow)
+	  var ${clo} = document.forms[0].${clo};
+#if( $col.isNotNull()||$col.isPrimaryKey() )
+  #if( $col.isPrimaryKey() )
+	  if ( __isQuoteIn(${clo}.value) )
+	  {
+	    alert("${col.chineseDescription}不能含有引号或单引号!");
+	    ${clo}.select();
+	    ${clo}.focus();
+	    return false;
+	  }
+  #end
+	if (trim(${clo}.value)=="")
+	{
+	  alert("请输入${col.chineseDescription}！"); 
+	  ${clo}.focus();   
+	  return false;
+	}
+    ${clo}.value = trim(${clo}.value) ;
+   #end
+#if( ($col.Format=="date"))
+   if ( !__checkStdDate(${clo} ) )
+   {
+      alert("${col.chineseDescription}"+sError);
+      ${clo}.focus();
+      return false;
+    }  
+#elseif($col.JavaType=="BigDecimal")
+    if (! __isFloat(${clo}.value) )   
+    {
+      alert("${col.chineseDescription}不是合法浮点数");
+      ${clo}.focus();
+      return false;
+    }   
+#elseif($col.JavaType=="Integer")
+    if (! __isNum(${clo}.value) )   
+    {
+      alert("${col.chineseDescription}不是合法数字");
+      ${clo}.focus();
+      return false;
+    }   
+#end
+#end
+#end
+#end
+return true
+}
+
+</script>
+</HEAD>
+<BODY topmargin="10px">
+<bsp:container title="${table.chineseDescription}增加" >
+<bsp:containbutton text="增加一行" onclick="doAddRow()"></bsp:containbutton>
+<bsp:containbutton text="删除一行" onclick="doDeleteRow()"></bsp:containbutton>
+<bsp:containbutton action="${table.JavaName.toLowerCase()}.cmd?method=insert" text="保存" onclick="forSave()"></bsp:containbutton>
+<bsp:containbutton action="${table.JavaName.toLowerCase()}.cmd?method=insertContinue" text="保存并继续" onclick="forSaveContinue()"></bsp:containbutton>
+<bsp:containbutton text="恢复" onclick="forReset()"></bsp:containbutton>
+<bsp:containbutton action="${table.JavaName.toLowerCase()}query_page_init.cmd" text="返回" onclick="forReturn()"></bsp:containbutton>
+<html:messages></html:messages>
+<html:form  name="frmList"  action="">
+<div style="background-color:#D5EAFD">
+  <table style="background-color:#D5EAFD"> 
+#set ( $countN = 0) 
+#set ( $countNTR = 0) 
+#set ( $size = "")
+#set ( $maxlength = "")
+#set ( $totalsize = 0 )
+#set ( $nSize = 0 )
+#foreach ( $col in $table.Columns )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)} )
+#if ($col.DefaultValue)
+#set ($defaultValue = "$col.DefaultValue")
+#else
+#set ($defaultValue = "")
+#end
+#set ( $dquote='"' )
+#if ( $col.Size )
+#if ( $col.inputSize )    
+#set ( $size = "size=${dquote}${col.inputSize}${dquote}" )            
+#else
+#set ( $size = "size=${dquote}${col.Size}${dquote}" )    
+#end
+#set ( $size = "size=${dquote}50${dquote}" )  
+#set ( $maxlength = "maxlength=${dquote}${col.Size}${dquote}" )
+#else
+#set ( $size = "size=${dquote}8${dquote}" )
+#set ( $maxlength = "maxlength=${dquote}8${dquote}" )
+#end
+#if ($col.InsertShow)
+#set ( $countNTR = $countN % 2)
+#if ($countNTR == 0 )
+					<tr>
+#end
+#if($col.isTextArea())
+					<tr>
+	                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+	                    <td class="tdRight"><html:textarea name="$clo" cols="$col.Cols" rows="$col.Rows" property="$clo" readonly="$col.UpdateReadonly"/></td>
+                    </tr>
+#elseif($col.InsertReadonly=="true")                    
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight"><html:text name="$clo" property="$clo" $size $maxlength readonly="true"/></td>                    
+#elseif( $col.JavaType == "boolean" || $col.JavaType == "booleanchar" )
+					<tr>
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight">
+#if($col.EnumValueList)
+#set($n=0)
+#foreach ($enum in $col.EnumValueList )
+                    	<html:radio name="$clo" property="$clo" value="$col.EnumNameList.get($n)">$enum</html:radio>
+#set($n=$n+1)
+#end
+#else
+                    	<html:radio name="$clo" property="$clo" value="1">是</html:radio>
+                    	<html:radio name="$clo" property="$clo" value="0">否</html:radio>
+#end
+                    </td>
+                    </tr>
+#elseif( $col.Format=="date" )					
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight" valign=top>
+						<date:date name="$clo" divname="${clo}dd" targetFormat="yyyyMMdd">
+						</date:date>
+					</td>					
+#elseif ($col.hasEnumValue())                     
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight">
+                    	<html:select name="$clo" property="$clo" >
+	                        <html:options collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" property="key"/>
+	                    </html:select>
+	                </td>          
+#elseif ( $col.isForeignKey() && ($col.ForeignKey.OnInsert == "select") && !$col.isPrimaryKey() )
+#set ( $fk = $col.ForeignKey )
+#foreach ( $fkcol in $fk.ForeignColumns )
+				      <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+				      <td class="tdRight">
+				      	<html:select name="$clo" property="$clo" >
+				      		<html:options collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="$fk.showCol" property="$fkcol" />
+				      	</html:select>
+				      </td>                  
+#end
+#else                    
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight"><html:text name="$clo" property="$clo" $size $maxlength /></td>                                       
+#end
+#else
+#if( $col.JavaType == "boolean" || $col.JavaType == "booleanchar" )
+					<tr>
+                    <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight">
+#if($col.EnumValueList)
+#set($n=0)
+#foreach ($enum in $col.EnumValueList )
+                    	<html:radio name="$clo" property="$clo" value="$col.EnumNameList.get($n)">$enum</html:radio>
+#set($n=$n+1)
+#end
+#else
+                    	<html:radio name="$clo" property="$clo" value="1">是</html:radio>
+                    	<html:radio name="$clo" property="$clo" value="0">否</html:radio>
+#end
+                    </td>
+                    </tr>
+#elseif( $col.Format=="date" )
+                    <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td valign=top>
+						<date:date name="$clo" divname="${clo}dd" sourceFormat="yyyyMMdd" targetFormat="yyyyMMdd" style="display:none">
+						</date:date>&nbsp;
+					</td>
+#elseif ( $col.hasEnumValue() ) 
+                    <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight">
+                    	<html:select name="$clo" property="$clo" style="display:none" >
+	                        <html:options collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" property="key" style="display:none"/>
+	                    </html:select>
+	                </td>
+#elseif ( $col.isForeignKey() && ($col.ForeignKey.OnInsert == "select") && !$col.isPrimaryKey() )
+#set ( $fk = $col.ForeignKey )
+#foreach ( $fkcol in $fk.ForeignColumns )
+				      <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+				      <td class="tdRight">
+				      	<html:select name="$clo" property="$clo" >
+				      		<html:options collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="$fk.showCol" property="$fkcol" style="display:none" />
+				      	</html:select>
+				      </td>
+#end
+#else
+                    <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+                    <td class="tdRight"><html:hidden name="$clo" property="$clo" write="true" /></td>                   
+#end
+#end
+#if ( $countNTR == 1 )
+					</tr>
+#end
+#set ( $countN= $countN+1 )
+#end 
+#if ( $countNTR == 0 )
+					<td>&nbsp;</td>
+					</tr>
+#end       
+  </table>
+		<grid:grid name="grid" sumRow="true" headCss="divToucss" detailCss="divTiSkin" sumCss="divSumcss" complexHead="false" property="list${table.LineTable.JavaName}" type="input" headHeight="22"  sumHeight="22" width="100%" height="200">		       	
+#set( $lineNum = 0 )
+#foreach($col in $table.LineTable.Columns)	
+#set($BeanName=${col.JavaName})
+#set($firstName = $BeanName.substring(0,1).toLowerCase())
+#set($lastName = $BeanName.substring(1))
+#if( !$col.isPrimaryKey() )
+#if($col.JavaType=="BigDecimal" || $col.JavaType=="int")
+			<grid:textCol property="$firstName$lastName" caption="$col.chineseDescription" width="90" index="$lineNum" xml="$firstName$lastName"  name="$firstName$lastName" style="width:100%" styleClass="default"></grid:textCol>		
+#elseif($col.JavaType == "Date")
+			<grid:dateCol property="$firstName$lastName" name="$firstName$lastName" caption="$col.chineseDescription"  width="100" index="$lineNum" ></grid:dateCol>
+#elseif($col.hasEnumValue())
+			<grid:selectCol  property="$firstName$lastName" name="$firstName$lastName" size="1" caption="$col.chineseDescription"  index="$lineNum" width="100" value="">
+		 		<grid:options collection="${table.LineTable.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" property="key"/>
+			</grid:selectCol>
+#else
+			<grid:textCol property="$firstName$lastName" caption="$col.chineseDescription" width="90" index="$lineNum" xml="$firstName$lastName"  name="$firstName$lastName" style="width:100%" styleClass="default" ></grid:textCol>		
+#end
+#end
+#set($lineNum=$lineNum + 1)
+#end
+		</grid:grid>
+</div>
+</html:form>
+</bsp:container>
+</BODY>
+</HTML>
+<script language="javascript">
+function forSave(){
+  if(!check${table.JavaName}()) return;	
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=insert";
+  document.forms[0].submit();	
+}
+function forSaveContinue(){
+  if(!check${table.JavaName}()) return;
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=insertContinue";
+  document.forms[0].submit();	
+}
+function forReturn(){
+  document.forms[0].action ="${table.JavaName.toLowerCase()}query_page_init.cmd";
+  document.forms[0].submit();	
+}
+function forReset(){  
+  document.forms[0].reset();	
+}
+function doAddRow()
+{
+    grid.addRow();
+}
+function doDeleteRow()
+{
+    grid.delRow();
+}
+
+grid.show();
+</script>

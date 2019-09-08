@@ -1,0 +1,84 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+/*
+ * @(#)I${table.JavaName}Dao.java 
+ * 程序生成时间：[$now] 生成
+ */
+package ${package}.dao;
+//导入java类
+import java.util.List;
+import java.util.Map;
+
+import com.zdvictory.jdbc.Page;
+import com.zdvictory.jdbc.PageInfo;
+import ${package}.view.${table.JavaName};
+
+
+/**
+ * 功能:本类为${table.chineseDescription}的Dao接口
+ *
+ * @author  huangdos
+ * @date    [$now]
+ */
+public interface I${table.JavaName}Dao {
+
+#if($table.hasHead())
+#set ( $HeadTable=$table.HeadTable )
+//有父类表，则产生和父类相关的数据操作
+	/**
+     * 根据父表：$HeadTable.name 主键删除子表 ${table.chineseDescription}的记录
+     */
+    public int deleteBy${HeadTable.JavaName}(#parse("pk/forSub_pkA.vm"));
+	/**
+     * 根据父表：$HeadTable.name 主键查询子表 ${table.chineseDescription}的记录
+     */
+	public List findBy${HeadTable.JavaName}(#parse("pk/forSub_pkA.vm"));
+#end
+
+	/**
+     * 删除	${table.chineseDescription}	一条记录
+     * @param #parse("pk/pk.vm")
+     
+     */
+    public int delete${table.JavaName}(#parse("pk/pkA.vm"));
+    /**
+     * @param #parse("pk/pk.vm")
+     批量删除
+     */
+    public int batchdelete${table.JavaName}(#parse("pk/batchpkA.vm"));
+    /**
+     * 取得	${table.chineseDescription}	一条记录
+     * @param #parse("pk/pk.vm")
+
+     * @return
+     */
+    public ${table.JavaName} findById(#parse("pk/pkA.vm"));
+
+    /**
+     * 查询	${table.chineseDescription}	一页记录
+     * @param pageInfo 页码信息
+     * @param map 查询条件
+     * @return 一页数据
+     */
+    public Page getAll${table.JavaName}Page(PageInfo pageInfo,Map map);
+
+    /**
+     * 查询	${table.chineseDescription}	全部记录
+     * @param map 查询条件
+     * @return List 所有数据
+     */
+	public List getAll${table.JavaName}NoPage(Map map);	
+
+	/**
+     * 插入	${table.chineseDescription}	一条记录
+     * @param ${table.JavaName.toLowerCase()}
+     * @return
+     */
+    public Object createObject(${table.JavaName} ${table.JavaName.toLowerCase()});
+    
+    /**
+     * 修改	${table.chineseDescription}	一条记录
+     * @param ${table.JavaName.toLowerCase()}
+     * @return
+     */
+    public boolean update(${table.JavaName} ${table.JavaName.toLowerCase()});
+    }

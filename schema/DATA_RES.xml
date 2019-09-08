@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="gb2312" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="PUBLIC_SCHEMA.xsl"?>
+<!DOCTYPE app-data SYSTEM "database.dtd">
+<app-data>
+	<database>	
+	<!--数据权限-->
+		<module name="PF_DATA_RES" chineseDescription="数据权限">
+			<submodule name="PF_DATA_RES" chineseDescription="数据权限">                  
+				<table name="PF_DATA_RES" chineseDescription="数据权限类型" pkg="dataRes.define" jspPath="dataRes/define">
+					<rem> ==================================================================== </rem>
+					<rem> 指标代码表	JT_ITEM_CODE						                                   </rem>
+					<rem> 输入人: ZDVT      输入日期:2006.06.02	  			               </rem>					
+					<rem> 修改人:                 修改日期:                                       </rem>
+					<rem> 修改变动:                                                              </rem>
+					<rem> ==================================================================== </rem>
+					<column name="ID" primaryKey="true" required="true" type="VARCHAR" size="30" chineseDescription="类型编号" queryShow="true"  updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="NAME" required="true" type="VARCHAR" size="100"  chineseDescription="类型名称" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="FILTER_KEY" required="true" type="VARCHAR" size="50"  chineseDescription="过滤的关键字段" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>					
+					<column name="FILTER_KEY_NOTE" required="false" type="VARCHAR" size="100"  chineseDescription="关键字段说明" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>										
+					<column name="FILTER_NAME" required="true" type="VARCHAR" size="50" chineseDescription="关键字显示信息字段"  queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>										
+					<column name="FILTER_NAME_NOTE" required="false" type="VARCHAR" size="100" chineseDescription="显示字段说明" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>														
+					<column name="FILTER_SQL" required="true" type="VARCHAR" size="1000" chineseDescription="过滤条件(SQL)"    queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>										
+					<column name="DEFAULT_KEY" required="false" type="VARCHAR" size="300" chineseDescription="默认关键字" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<column name="NOTE" required="false" type="VARCHAR" size="300" chineseDescription="备注" queryShow="false" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<column name="NOTE2" required="false" type="VARCHAR" size="100" chineseDescription="NOTE2" queryShow="false" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<column name="NOTE3" required="false" type="VARCHAR" size="100" chineseDescription="NOTE3" queryShow="false" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+
+					<index name="INX_DATA_RES_NAME">
+			        	<index-column name="NAME"/>
+			        </index>
+				</table>				
+				
+				<table name="PF_DATA_RES_LIST" chineseDescription="用户数据权限列表" pkg="dataRes.list" jspPath="dataRes/list">
+					<rem> ==================================================================== </rem>
+					<rem> 指标代码表	MP_MESSAG						                                   </rem>
+					<rem> 输入人: ZDVT      输入日期:2006.06.02	  			               </rem>					
+					<rem> 修改人:                 修改日期:                                       </rem>
+					<rem> 修改变动:                                                              </rem>
+					<rem> ==================================================================== </rem>
+					<column name="ID" primaryKey="true" required="true" type="VARCHAR" size="36" chineseDescription="主键" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="USER_ID" required="true" type="VARCHAR" size="30" chineseDescription="用户编号" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="DATA_RES_ID" required="true" type="VARCHAR" size="30"  chineseDescription="数据权限类型" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="FILTER_KEY"  required="true" type="VARCHAR" size="100"  chineseDescription="过滤关键字" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>					
+					<column name="FILTER_NAME" required="true" type="VARCHAR" size="200"  chineseDescription="关键字显示信息" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>										
+					<column name="NOTE" required="false" type="VARCHAR" size="300" chineseDescription="备注" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<column name="NOTE2" required="false" type="VARCHAR" size="100" chineseDescription="NOTE2" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<column name="NOTE3" required="false" type="VARCHAR" size="100" chineseDescription="NOTE3" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>															
+					<foreign-key foreignTable="PF_DATA_RES">
+				    	<reference local="DATA_RES_ID" foreign="ID"/>
+			        </foreign-key>			       
+			       	<foreign-key foreignTable="PF_USER_DEPT">
+				    	<reference local="USER_ID" foreign="USERID"/>
+			        </foreign-key> 
+			        <unique name="UK_PF_DATA_RES_LIST" >
+			        	<unique-column name="USER_ID"/>
+			        	<unique-column name="DATA_RES_ID"/>
+			        	<unique-column name="FILTER_KEY"/>
+			        </unique>
+				</table>				
+			</submodule>
+			
+		</module>		
+	</database>
+</app-data>
+

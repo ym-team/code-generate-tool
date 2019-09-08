@@ -1,0 +1,93 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service.interfaces;
+
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.evergrande.common.Pagination;
+import com.evergrande.common.QueryData;
+import com.evergrande.common.valid.Validation;
+import ${package}.entity.${table.JavaName}Entity;
+
+/**
+ * @author chenzx
+ * @date [$now]
+ * @desc ${table.chineseDescription}  Service
+ */
+ 
+public interface ${table.JavaName}Service {
+
+
+	/**
+	   * ����
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return
+	   */
+	@Validation
+	public long save(@NotNull ${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	
+	
+	
+
+	/**
+	   * ����
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return
+	   */
+	@Validation   
+	public int saveList(@NotNull @Size(min = 1)List<${table.JavaName}Entity>  list${table.JavaName}Entity);
+	
+
+  	 /**
+	   * �鿴����
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return ${table.JavaName}Entity
+	   */
+	@Validation	   
+	public ${table.JavaName}Entity queryDetail(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+  
+	/**
+	 * ����ҳ�б�
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return List<${table.JavaName}Entity>
+	 */
+	@Validation
+	public List<${table.JavaName}Entity> queryList(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  
+	/**
+	 * ��ҳ��ѯ�б�
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @param page
+	 * @return List<${table.JavaName}Entity>
+	 */
+	@Validation
+	public QueryData queryListByPage(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity,@NotNull Pagination page);
+	  
+	/**
+	 *�޸Ļ��߼�ɾ�� pk_id更新
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return
+	 */
+	@Validation
+	public int update(@NotNull ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  
+	 /**
+	  * ����h��
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  */
+	@Validation
+	public int delete(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	
+	/**
+	  * ����h��
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  */
+	@Validation
+	public Long queryCount(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  
+     
+  	
+  
+}

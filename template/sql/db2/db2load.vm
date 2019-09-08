@@ -1,0 +1,3 @@
+#set($comma = false )
+load from ./${table.Name}.ixf of ixf insert into ${table.Name};
+

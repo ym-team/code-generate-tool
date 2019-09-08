@@ -1,0 +1,2 @@
+LOAD DATA LOCAL INFILE 'C:\\${table.Name}.txt' INTO TABLE $table.Name;
+

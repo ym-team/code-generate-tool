@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="PUBLIC_SCHEMA.xsl"?>
+<!DOCTYPE app-data SYSTEM "database.dtd">
+<app-data>
+	<database>	
+	<!--问题反馈记录信息维护-->
+		<module name="FAQ" chineseDescription="系统菜单">
+			<submodule name="FAQ_INFORMATION" chineseDescription="系统菜单">                  
+				<table name="SYS_PT_MENU" chineseDescription="系统菜单" pkg="syscode" jspPath="platform/FAQ/info">
+					<rem> ==================================================================== </rem>
+					<rem> 问题反馈记录信息维护							                                   </rem>
+					<rem> 输入人:        输入日期:2006.06.02	  			               </rem>					
+					<rem> 修改人:                 修改日期:                                       </rem>
+					<rem> 修改变动:                                                              </rem>
+					<rem> ==================================================================== </rem>
+					<column name="MENU_ID" primaryKey="true" required="true" type="VARCHAR" size="36" chineseDescription="菜单内码" queryShow="true"/>
+					<column name="MENU_TREE_CODE" required="true" type="VARCHAR" size="200"  chineseDescription="菜单编码" queryShow="true" searchShow="true" updateShow="true" insertShow="true" detailShow="true"/>
+					<column name="MENU_NAME" primaryKey="true" required="true" type="VARCHAR" size="36" chineseDescription="菜单名称" queryShow="true"/>
+				</table>					   
+			</submodule>			
+		</module>		
+	</database>
+</app-data>
+

@@ -1,0 +1,7 @@
+#foreach ($pk in $table.PrimaryKeys)
+#if ( $pk.JavaType=="int")
+    final int[] to${strings.lowercaseFirstLetter(${pk.JavaName})} = ${strings.lowercaseFirstLetter(${pk.JavaName})};
+#else   
+    final String[] to${strings.lowercaseFirstLetter(${pk.JavaName})} = ${strings.lowercaseFirstLetter(${pk.JavaName})};
+#end
+#end

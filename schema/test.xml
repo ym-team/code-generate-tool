@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="PUBLIC_SCHEMA.xsl"?>
+<!DOCTYPE app-data SYSTEM "database.dtd">
+<app-data>
+	<database>	
+	<!--平台系统定义-->
+		<module name="SYS" chineseDescription="平台系统定义">
+			<submodule name="SYS_PT_SYSTEM" chineseDescription="平台系统定义">  
+			                
+<table name='t_social_keyword' chineseDescription='敏感词' pkg='social' jspPath='platform/permit/userRole' >
+<column name='id'   primaryKey='true' required='true' type='INTEGER'  chineseDescription=''/>
+<column name='content'   primaryKey='true' required='true' type='VARCHAR'  chineseDescription='内容'/>
+<column name='status'   primaryKey='true' required='true' type='INTEGER'  chineseDescription='0-停用 1-启用'/>
+<column name='mark'   primaryKey='true' required='true' type='VARCHAR'  chineseDescription='备注'/>
+<column name='create_time'   primaryKey='true' required='true' type='BIGINT'  chineseDescription='创建时间'/>
+<column name='modify_time'   primaryKey='true' required='true' type='BIGINT'  chineseDescription='最后修改时间'/>
+</table>
+			</submodule>			
+		</module>		
+	</database>
+</app-data>
+

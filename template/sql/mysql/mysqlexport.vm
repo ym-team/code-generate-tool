@@ -1,0 +1,2 @@
+SELECT * INTO OUTFILE 'C:\\${table.Name}.txt' FROM $table.Name;
+

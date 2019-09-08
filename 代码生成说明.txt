@@ -1,0 +1,18 @@
+代码配置步骤说明
+代码机项目不能放在有中文的目录下面。
+
+1：根据实际的数据结构编写schema文件并将文件放在schema路径下
+2：配置文件generator.properties属性配置项说明
+	schema.name配置为步骤1中schema的名称
+	database = oracle,db2,mssql,mysql,sybase中的一种,根据实际需要修改
+	topPackage 表示生成的JAVA文件的顶级包路径,可以为空
+	备注：其它属性一般不做修改。
+3：运行build.xml-->run-->ant build 执行代码生成
+4：切换eclipse到resource资源视图下，刷新out文件夹即可看到生成的代码文件
+5. 修改 deploy.properties 设置代码机生成的代码所需要拷贝的路径
+6. 运行 deploy_to_resource.xml-->run-->ant build 执行代码拷贝
+7:注意事项：
+　　schema文件中的pkg和jspPath属性全部小写
+
+
+/redsea-codemachine/template/single/java

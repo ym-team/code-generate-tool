@@ -1,0 +1,10 @@
+#set($comma = false )
+#foreach ($col in $table.Columns )
+#if( ($col.Format == "date") && ($col.Size == "8") )
+#set($comma = true )
+#set($colname = $col.Name)
+#end
+#end
+export to ${table.Name}.ixf of ixf select * from $table.Name ; 
+
+

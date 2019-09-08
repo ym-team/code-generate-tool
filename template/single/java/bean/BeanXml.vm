@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+#set ( $package = "${topPackage}${table.pkg}" )
+<mapper namespace="${package}.mapper.${table.JavaName}EntityMapper">
+
+	<resultMap id="baseResultMap" type="${package}.entity.${table.JavaName}Entity">
+#foreach ($col in $table.Columns)
+#set ( $cjtype = $col.JavaType )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ($defVal = "")
+#if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+#set ( $quote = '' )
+#if ( $cjtype == "String" ) 
+#set ( $quote = '"' )
+#end
+#set ( $defaultValue = $col.DefaultValue )
+#if ( $cjtype == "boolean" )
+#if ( $defaultValue == "1" || $defaultValue == "Y" )
+#set ( $defaultValue = "true" )
+#elseif ( $defaultValue == "0" || $defaultValue == "N" )
+#set ( $defaultValue = "false" )
+#end
+#end
+#set ($defVal = "=$quote$defaultValue$quote")
+#end
+#if ( $col.JavaType=="boolean" )
+     <id column="$col.Name" property="${strings.lowercaseFirstLetter(${col.JavaName})}" jdbcType="${col.Type}" />
+#elseif ( $col.JavaType=="byte[]" )
+   <id column="$col.Name" property="${strings.lowercaseFirstLetter(${col.JavaName})}" jdbcType="${col.Type}" />
+#else
+		<id column="$col.Name" property="${strings.lowercaseFirstLetter(${col.JavaName})}" jdbcType="${col.Type}" />
+#end        
+#end		
+	</resultMap>
+	
+<sql id="baseColumns">
+	#set($comma = false)
+	#foreach($col in $table.Columns)
+	#if($comma),
+	#end
+	$col.Name
+	#set($comma=true)
+	#end
+	</sql>
+	
+	
+		<sql id="queryConditions">
+			WHERE 1=1
+				#set($comma = false)
+				 #foreach($col in $table.Columns)
+					#if($comma)
+					 </if>
+					#end
+						<if test="${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+							AND	$col.Name =	#{${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})}}
+					#set($comma=true)
+					#end
+						</if>
+						<if test="${strings.lowercaseFirstLetter($table.JavaName)}Entity.listPkId != null">
+							AND pk_id in 
+							<foreach item="pkId" index="index" collection="listPkId" open="(" separator="," close=")">
+										#{pkId}
+							</foreach>
+		
+						</if>
+					
+			
+		</sql>
+		
+		
+	
+	<sql id="limit">
+		<if test="page != null">
+			limit #{page.start},#{page.pageSize}
+		</if>
+	</sql>
+	
+	
+	
+	
+	
+	
+	<insert id="save" parameterType="${package}.entity.${table.JavaName}Entity" useGeneratedKeys="true" keyProperty="${strings.lowercaseFirstLetter($table.JavaName)}Entity.pkId" keyColumn="pk_id">
+		insert into ${table.Name}
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		#set($comma = false)
+		#foreach($col in $table.Columns)
+		#if($comma), 
+        </if>
+#end
+		<if test="${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+				$col.Name
+#set($comma=true)
+#end
+</if>
+
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			
+		#set($comma = false)
+		#foreach($col in $table.Columns)
+		#if($comma), 
+		        </if>
+		#end
+		<if test="${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+				#{${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})},jdbcType=${col.Type}}
+#set($comma=true)
+#end
+</if>	
+		</trim>
+		</insert>
+		
+		
+	
+	
+	
+
+	<select id="queryList" resultMap="baseResultMap"
+		parameterType="${package}.entity.${table.JavaName}Entity">
+		select <include refid="baseColumns"/> from ${table.Name} 
+		
+			<include refid="queryConditions"/>
+				order by pk_id desc
+	</select>
+	
+	
+	<select id="queryListByPage" resultMap="baseResultMap">
+		select <include refid="baseColumns"/>   from ${table.Name} 
+		<include refid="queryConditions"/>
+			order by pk_id desc
+		<include refid="limit"/>
+	</select>
+	
+	 <select id="queryCount" parameterType="${package}.entity.${table.JavaName}Entity"
+		resultType="java.lang.Long">
+		SELECT COUNT(1) FROM ${table.Name} 
+		
+		<include refid="queryConditions"/>
+		
+	</select>
+	
+	<select id="queryDetail" parameterType="${package}.entity.${table.JavaName}Entity" resultMap="baseResultMap" >
+		select <include refid="baseColumns"/>  from ${table.Name} 
+		<include refid="queryConditions"/>
+			
+	</select>
+	
+	
+	<update id="update" parameterType="${package}.entity.${table.JavaName}Entity" resultType="java.lang.Integer">
+		update ${table.Name} 
+		<set> 
+		 #set($comma = false)
+		 #foreach($col in $table.Columns)
+			#if($comma)
+			        </if>
+			#end
+			<if test="${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+						$col.Name =	#{${strings.lowercaseFirstLetter($table.JavaName)}Entity.${strings.lowercaseFirstLetter(${col.JavaName})}},
+			#set($comma=true)
+			#end
+			</if>
+		</set>	
+			where pk_id = #{${strings.lowercaseFirstLetter($table.JavaName)}Entity.pkId} 
+	</update>
+	
+	
+	<delete id="delete" parameterType="${package}.entity.${table.JavaName}Entity" resultType="java.lang.Integer">
+		 delete from ${table.Name} 
+		 
+		<include refid="queryConditions"/>
+	</delete>
+	
+	
+	<insert id="saveList" parameterType="${package}.entity.${table.JavaName}Entity" useGeneratedKeys="true" keyProperty="id">
+		insert into ${table.Name}
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				#set($comma = false)
+				#foreach($col in $table.Columns)
+				#if($comma), 
+		        </if>
+				#end
+				
+				<if test="${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+						$col.Name
+				#set($comma=true)
+				#end
+				</if>
+	
+			</trim>
+
+		VALUES
+		
+			<foreach collection="list${table.JavaName}Entity" item="p" index="index"
+				separator="," >
+			(
+			#set($comma = false)
+			#foreach($col in $table.Columns)
+			#if($comma), 
+			        </if>
+			#end
+			<if test="${strings.lowercaseFirstLetter(${col.JavaName})} != null">
+					#{p.${strings.lowercaseFirstLetter(${col.JavaName})},jdbcType=${col.Type}}
+			#set($comma=true)
+			#end
+			</if>	
+			)
+			</foreach>
+		</insert>
+	
+
+ 
+</mapper>

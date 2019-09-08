@@ -1,0 +1,19 @@
+#set($num=0)
+#foreach ( $col in $table.Columns )
+#if ( $col.isPrimaryKey() )
+#set($num = $num+1)
+#end
+#end
+#set($multiPk=false)
+#if($num > 1)
+#set($multiPk=true)
+#end
+#set($dollar ='$')
+#set($squote = "'")
+#set($colon = false)
+#foreach ( $col in $table.Columns )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.isPrimaryKey() )#if($multiPk)$dollar#end#if($colon)+$squote:$squote+#end$clo#end
+#set( $colon = true )
+#set($multiPk=false)
+#end

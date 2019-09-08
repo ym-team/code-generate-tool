@@ -1,0 +1,18 @@
+#set ($basePath = $generator.OutputPath)
+#foreach ($databaseModel in $appData.Databases)
+#foreach ($table in $databaseModel.Tables)
+
+##枚举值开始
+
+#set ( $enumpath = "" )
+#set ( $path = $strings.getPackageAsPath($enumpath))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "enum.sql" )
+#set ( $path = "${strings.getPackageAsPath($enumpath)}$fname" )   
+$generator.parse("headline/enum/enum.vm",$path,"table",$table)
+
+##枚举值结束
+
+#end
+#end

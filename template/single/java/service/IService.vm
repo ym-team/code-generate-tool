@@ -1,0 +1,64 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service.interfaces;
+
+import java.util.Map;
+
+/**
+ * @author chenzx
+ * @date [$now]
+ * @desc ����Ϊ${table.chineseDescription}��Service�ӿ�
+ */
+ 
+public interface I${table.JavaName}Impl {
+	/**
+	 * ����
+	 * @param map
+	 * @return
+	 * @throws Exception
+	 */
+ public Map<String,Object> save(Map<String,Object> map) throws Exception;
+  
+  
+  
+ /**
+  * ������
+  * @param map
+  * @return
+  * @throws Exception
+  */
+  public Map<String,Object> queryDetail(Map<String,Object> map) throws Exception;
+  
+  /**
+   * ����ҳ���б�
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> queryList(Map<String,Object> map) throws Exception;
+  
+  /**
+   * ��ҳ���б�
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> queryListByPage(Map<String,Object> map) throws Exception;
+  
+  /**
+   * �޸Ļ��߼�ɾ
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> update(Map<String,Object> map) throws Exception;
+  
+  /**
+   * ����ɾ
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> delete(Map<String,Object> map) throws Exception;
+  
+  
+}

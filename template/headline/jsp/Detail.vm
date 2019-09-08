@@ -1,0 +1,154 @@
+<%@ page contentType="text/html;charset=GBK" %>
+<%@ page import="net.mast.waf.ResourcesFactory"%>
+<%@ taglib uri="/tags/web-html" prefix="html"%>
+<%@ taglib uri="/tags/mast-bsp" prefix="bsp"%>
+<%@ taglib uri="/tags/web-mast" prefix="mast"%>
+<%@ taglib uri="/tags/web-grid" prefix="grid"%>
+#set ($dateHave=0)
+#foreach ( $col in $table.Columns )
+#if( $col.Format=="date"&&$dateHave==0 )
+#set ($dateHave=1)
+<%@ taglib uri="/tags/web-date" prefix="date"%>
+#end
+#end
+#set ($dateHave=0)
+<HTML>
+<HEAD>
+<TITLE>${table.chineseDescription}查看</TITLE>
+<link rel="stylesheet" type="text/css" href="<mast:ui css='skin.css'/>">
+<link rel="stylesheet" type="text/css" href="<mast:ui css='editgrid.css'/>">
+#foreach ( $col in $table.Columns )
+#if( $col.Format=="date"&&$dateHave==0 )
+#set ($dateHave=1)
+<link rel="stylesheet" type="text/css" href="<mast:ui css='date.css'/>">
+<script language="javascript" src="<mast:ui js='calendar.js'/>"></script>
+#end
+#end
+#set ($dateHave=0)
+<script language="javascript" src="<mast:ui js='mastfunction.js'/>"></script>
+<script language="javascript" src="<mast:ui js='grid.js'/>"></script>
+<bsp:container title="${table.chineseDescription}查看" >
+<bsp:containbutton action="${table.JavaName.toLowerCase()}.cmd?method=forupdate" text="修改" onclick="forUpdate()"></bsp:containbutton>
+<bsp:containbutton action="${table.JavaName.toLowerCase()}query_page_init.cmd" text="返回" onclick="forReturn()"></bsp:containbutton>
+<html:messages></html:messages>
+<html:form  name="frmList"  action="">
+<html:hidden name="primaryKey" value=""/>
+<div style="background-color:#D5EAFD">
+  <table style="background-color:#D5EAFD"> 
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+  		<html:hidden name="pk" property=${dquote}${dollar}#parse("pk/pkDetail.vm")$dquote write="false"/>
+#set ( $countN = 0) 
+#set ( $countNTR = 0) 
+#set ( $size = "")
+#set ( $maxlength = "")
+#set ( $totalsize = 0 )
+#set ( $nSize = 0 )
+#foreach ( $col in $table.Columns )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)} )
+#if ($col.DefaultValue)
+#set ($defaultValue = "$col.DefaultValue")
+#else
+#set ($defaultValue = "")
+#end
+#if ( $col.Size )
+#if ( $col.inputSize )    
+#set ( $size = "size=${dquote}${col.inputSize}${dquote}" )            
+#else
+#set ( $size = "size=${dquote}${col.Size}${dquote}" )    
+#end
+#set ( $maxlength = "maxlength=${dquote}${col.Size}${dquote}" )
+#end
+#if ($col.DetailShow)
+#set ( $countNTR = $countN % 2)
+#if ($countNTR == 0 )
+	<tr>
+#end
+#if ( $col.hasEnumValue() && !$col.isForeignKey() )
+      <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight">
+      	<html:label name="$clo" property="$clo" collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" labelKey="key" />
+      </td>
+#elseif ( $col.isForeignKey() && !$col.isPrimayKey() )
+#set ( $fk = $col.ForeignKey )
+#foreach ( $fkcol in $fk.ForeignColumns )
+      <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight">
+      	<html:label name="$clo" property="$clo" collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="$fk.showCol" labelKey="$fkcol" />
+      </td>
+#end
+#else
+      <td class="tdTitle"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight"><html:hidden name="$clo" property="$clo" write="true"/></td>
+#end
+#else
+#if ( $col.hasEnumValue() && !$col.isForeignKey() )
+      <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight">
+      	<html:label name="$clo" property="$clo" collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" labelKey="key"  style="display:none"/>
+      </td>
+#elseif ( $col.isForeignKey() && !$col.isPrimayKey() )
+#set ( $fk = $col.ForeignKey )
+#foreach ( $fkcol in $fk.ForeignColumns )
+      <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight">
+      	<html:label name="$clo" property="$clo" collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="$fk.showCol" labelKey="$fkcol"  style="display:none"/>
+      </td>
+#end
+#else
+      <td class="tdTitle" style="display:none"><%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>：</td>
+      <td class="tdRight"><html:hidden name="$clo" property="$clo"  style="display:none"/></td>
+#end
+#end
+#if ( $countNTR == 1 )
+	</tr>
+#end
+#set ( $countN= $countN+1 )
+#end
+#if ( $countNTR == 0 )					
+	</tr>
+#end       
+  </table>
+		<grid:grid name="grid" sumRow="true" headCss="divToucss" detailCss="divTiSkin" sumCss="divSumcss" complexHead="false" property="list${table.LineTable.JavaName}" type="edit" headHeight="22"  sumHeight="22" width="100%" height="200">		       	
+#set( $lineNum = 0 )
+#foreach($col in $table.LineTable.Columns)
+#set($BeanName=${col.JavaName})
+#set($firstName = $BeanName.substring(0,1).toLowerCase())
+#set($lastName = $BeanName.substring(1))
+#if( !$col.isPrimaryKey() )
+#if($col.JavaType=="BigDecimal" || $col.JavaType=="int")
+			<grid:textCol property="$firstName$lastName" caption="$col.chineseDescription" width="90" index="$lineNum" xml="$firstName$lastName"  name="$firstName$lastName" style="width:100%" styleClass="default"  readonly="true"></grid:textCol>		
+#elseif($col.JavaType == "Date")
+			<grid:dateCol property="$firstName$lastName" name="$firstName$lastName" caption="$col.chineseDescription"  width="100" index="$lineNum" readonly="true"></grid:dateCol>
+#elseif($col.hasEnumValue())
+			<grid:selectCol  property="$firstName$lastName" name="$firstName$lastName" size="1" caption="$col.chineseDescription"  index="$lineNum" width="100" >
+		 		<grid:options collection="${table.LineTable.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="value" property="key" />
+			</grid:selectCol>
+#else
+			<grid:textCol property="$firstName$lastName" caption="$col.chineseDescription" width="90" index="$lineNum" xml="$firstName$lastName"  name="$firstName$lastName" style="width:100%" styleClass="default" readonly="true"></grid:textCol>		
+#end
+#end
+#set($lineNum=$lineNum + 1)
+#end
+		</grid:grid>
+</div>
+</html:form>
+</bsp:container>
+</BODY>
+</HTML>
+<script language="javascript">
+function forUpdate(){
+  document.all("primaryKey").value=document.all("pk").value;
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=forupdate";
+  document.forms[0].submit();	
+}
+function forReturn(){
+if(window.opener){
+	window.close();
+}else{
+  document.forms[0].action ="${table.JavaName.toLowerCase()}query_page_init.cmd";
+  document.forms[0].submit();	
+}
+}
+grid.show();
+</script>

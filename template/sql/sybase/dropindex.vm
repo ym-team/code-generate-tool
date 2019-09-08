@@ -1,0 +1,3 @@
+#foreach ($index in $table.Indices)
+DROP INDEX $index.Name;
+#end

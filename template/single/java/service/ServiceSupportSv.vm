@@ -1,0 +1,128 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.evergrande.common.Pagination;
+import com.evergrande.common.QueryData;
+
+import ${package}.entity.${table.JavaName}Entity;
+import ${package}.service.interfaces.I${table.JavaName}Service;
+
+
+ /**
+ * @author  chenzx
+ * @date [$now]
+ * @desc  ${table.chineseDescription} Service ${table.JavaName}ServiceImpl
+ */
+ 
+ 
+public class ${table.JavaName}ServiceImpl implements ${table.JavaName}Service {
+
+  @Autowired
+  private ${table.JavaName}Mapper ${strings.lowercaseFirstLetter($table.JavaName)}Mapper;
+  
+  
+     /**
+	   * �鿴����
+	   * @param List<${table.JavaName}Entity>
+	   * @return	${table.JavaName}Entity
+	 */
+  @Override
+  public long save(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity) {
+	int count = this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.save(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+    return ${strings.lowercaseFirstLetter($table.JavaName)}Entity.getPkId();
+  }
+  
+   /**
+	   * �鿴����
+	   * @param List<${table.JavaName}Entity>
+	   * @return	${table.JavaName}Entity
+	 */
+  @Override
+  public int saveList(List<${table.JavaName}Entity> list${table.JavaName}Entity) {
+	int count = this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.saveList(list${table.JavaName}Entity);
+    return count;
+  }
+
+  
+  
+  	/**
+	   * �鿴����
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return	${table.JavaName}Entity
+	   */
+	@Override
+	public ${table.JavaName}Entity queryDetail(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity) {
+		${strings.lowercaseFirstLetter($table.JavaName)}Entity = this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.queryDetail(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		return ${strings.lowercaseFirstLetter($table.JavaName)}Entity;
+	}
+  
+	/**
+	 * ����ҳ��ѯ�б�
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return	List<${table.JavaName}Entity>
+	 */
+	@Override
+	public List<${table.JavaName}Entity> queryList(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity){
+		List<${table.JavaName}Entity> list${table.JavaName}Entity = this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.queryList(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		return list${table.JavaName}Entity;
+	}
+	  
+	/**
+	 * ��ҳ��ѯ�б�
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @param page
+	 * @return List<${table.JavaName}Entity>
+	 */
+	 @Override
+	public QueryData queryListByPage(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity,Pagination page) {
+		List<${table.JavaName}Entity> list${table.JavaName}Entity = new ArrayList<${table.JavaName}Entity>();
+		QueryData queryData = new QueryData();
+		Long count = this.queryCount(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		if(null != count && count > 0){
+			list${table.JavaName}Entity =  this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.queryListByPage(${strings.lowercaseFirstLetter($table.JavaName)}Entity,page);
+		}
+		
+		queryData.setCurrPage(page.getCurrentPage());
+		queryData.setDataList(list${table.JavaName}Entity);
+		queryData.setTotalCount(Integer.valueOf(count.toString()));
+	    queryData.build();
+		queryData.setPageSize(page.getPageSize());
+	
+		return queryData;
+	}
+	  
+	/**
+	 * �޸Ļ��߼�ɾ��
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return
+	 */
+	 @Override
+	public int update(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity) {
+		this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.update(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	}
+	  
+	 /**
+	  * ����ɾ��
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  */
+	  @Override
+	public int delete(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity){
+		this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.delete(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	}
+	
+	/**
+	  * ����ɾ��
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  */
+	 @Override
+	public Long queryCount(${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity){
+		return this.${strings.lowercaseFirstLetter($table.JavaName)}Mapper.queryCount(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	}
+	
+}

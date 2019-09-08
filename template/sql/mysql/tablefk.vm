@@ -1,0 +1,7 @@
+#foreach ($fk in $table.ForeignKeys)
+#if( !$fk.NoSql )
+ALTER TABLE $table.Name
+    ADD CONSTRAINT $fk.Name FOREIGN KEY ($fk.LocalColumnNames)
+    REFERENCES $fk.ForeignTableName ($fk.ForeignColumnNames)  on delete cascade;
+#end
+#end

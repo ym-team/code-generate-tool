@@ -1,0 +1,164 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.math.BigDecimal;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.evergrande.common.Pagination;
+import com.evergrande.common.QueryData;
+
+
+import ${package}.entity.${table.JavaName}Entity;
+
+
+
+ /**
+ * @author chenzx
+ * @date [$now]
+ * @desc 
+ */
+ 
+ 
+public class ${table.JavaName}ServiceTest {
+
+
+    private ${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Sevice;
+    private ApplicationContext context;
+    
+
+    @Before
+    public void before() {
+        context = new ClassPathXmlApplicationContext("dubbo-service-consumer.xml");
+        ${strings.lowercaseFirstLetter($table.JavaName)}Sevice = (${table.JavaName}Service) context.getBean("${table.JavaName}Service");
+    }
+
+
+
+    @After
+    public void after() {
+
+    }
+    
+
+
+	  @Test
+	  public void testSave() throws Exception {
+	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	  	
+	  	${strings.lowercaseFirstLetter($table.JavaName)}Sevice.save(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  	
+	  		  	//主键 还不行
+	  	System.out.println("主键 ："+tPmExceptionToPreypayRecordEntity.getExceptionPrepayId());
+	  }
+
+
+	  @Test
+  	  public void testSaveList() throws Exception{
+  	  	List<${table.JavaName}Entity> list${table.JavaName}Entity = new ArrayList<${table.JavaName}Entity>();
+  	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+  	  	
+  	  	list${table.JavaName}Entity.add(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+  	  	
+  	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity2 = new ${table.JavaName}Entity();
+  	  	
+  	  	list${table.JavaName}Entity.add(${strings.lowercaseFirstLetter($table.JavaName)}Entity2);
+  	  	
+  	  	${strings.lowercaseFirstLetter($table.JavaName)}Sevice.saveList(list${table.JavaName}Entity);
+  	  	
+  	  }
+ 
+ 
+ 	  @Test
+	  public void testQueryDetail() throws Exception{
+	  
+	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	  	
+	  	${strings.lowercaseFirstLetter($table.JavaName)}Entity = ${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryDetail(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  	System.out.println(${strings.lowercaseFirstLetter($table.JavaName)}Entity.toString());
+	  }
+	  
+
+	  @Test
+	  public void testQueryList() throws Exception{
+	  	
+	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	  	
+	  	List<${table.JavaName}Entity> list${table.JavaName}Entity = ${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryList(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  	System.out.println(list${table.JavaName}Entity.toString());
+	  }
+	  
+	  
+	  @Test
+	  public void testQueryListByPage() throws Exception{
+	  	
+	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	  	
+	  	Pagination page = new Pagination();
+	  	page.setCurrentPage(1);
+	  	page.setPageSize(5);
+	  	
+	  	QueryData queryListByPage = ${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryListByPage(${strings.lowercaseFirstLetter($table.JavaName)}Entity,page);
+	  	System.out.println(queryListByPage.toString());
+	  	System.out.println(queryListByPage.getDataList().toString());
+	  	
+	  }
+	  
+	  
+  
+  
+ 
+	  @Test
+	  public void testQueryCount() throws Exception{
+	  	
+	  	
+	  	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	  	
+	  	Long count = ${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryCount(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  	
+	  	System.out.println("count:"+count);
+	  }
+  
+
+ 	 @Test
+	 public void testUpdate() throws Exception{
+	 
+	 	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	 	
+	 	${strings.lowercaseFirstLetter($table.JavaName)}Sevice.update(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	 	
+	 }
+	 
+	 
+	 @Test
+	 public void testUpdate() throws Exception{
+	 
+	 	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	 	
+	 	${strings.lowercaseFirstLetter($table.JavaName)}Sevice.update(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	 	
+	 }
+	 
+	 
+	 @Test
+	 public void testDelete() throws Exception{
+	 
+	 	${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+	 	
+	 	${strings.lowercaseFirstLetter($table.JavaName)}Sevice.delete(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	 	
+	 }
+	 
+	 
+	 
+	 
+  
+
+ 
+}

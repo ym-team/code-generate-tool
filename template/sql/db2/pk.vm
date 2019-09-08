@@ -1,0 +1,4 @@
+ALTER TABLE $table.Name
+    ADD CONSTRAINT ${table.LimitName}_PK 
+    PRIMARY KEY ($table.printPrimaryKey());
+ 

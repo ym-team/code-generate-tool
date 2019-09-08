@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<%@ page contentType="text/html; charset=GBK"%>
+
+<%@ page import="com.zdvictory.jdbc.PageInfo"%>
+<%@ page import="java.util.*"%>
+<%@ page import="org.ld.soa.util.*"%>
+<%@ page import="com.zdvictory.util.enumservice.EnumServiceSupport"%>
+<%@ page import="com.zdvictory.platform.user.UserInfo"%>
+<%@ page import="${package}.view.${table.JavaName}"%>
+<%@ taglib uri="http://jsptags.com/tags/navigation/pager" prefix="pg" %>
+<%@ taglib uri="/tags/web-html" prefix="html"%>
+<%
+String style="green";//默认样式
+UserInfo pfUser=(PFUser)session.getAttribute("UserInfo"); 
+style=pfUser.getCurrent_style();
+
+String app=request.getContextPath();
+
+PageInfo pageInfo=(PageInfo)request.getAttribute("pageinfo");//获取翻页属性信息
+if(pageInfo==null){//如果不存在，则默认翻页20
+	pageInfo=new PageInfo(0,20);
+	request.setAttribute("pageinfo",pageInfo);
+}
+List list=(List)request.getAttribute("list"); //查询出来的数据
+
+if(list==null){
+	list=new ArrayList();
+}
+String actionName=(String)request.getAttribute("action");
+if(actionName==null){
+	actionName="search";
+}
+String linkPath="/${table.JavaName.toLowerCase()}!list.action?action="+actionName; //翻页连接触发的URL，一般认为当前URL
+ComponentFactory.setApplicationContext(this.getServletContext());
+EnumServiceSupport enumService=(EnumServiceSupport)ComponentFactory.getBean("enumService");
+
+#foreach($col in $table.Columns)
+#if( $col.hasEnumValue() )
+request.setAttribute("${table.JavaName.toUpperCase()}.${col.JavaName.toUpperCase()}",enumService.getValueDescsList("${table.JavaName.toUpperCase()}.${col.JavaName.toUpperCase()}"));
+#end
+#end
+
+%> 
+
+
+<HTML>
+<HEAD style=""> 
+<meta http-equiv="Content-Type" content="text/html; charset=GBK"/>
+<TITLE>${table.chineseDescription}查询</TITLE>
+<!-- 导入JS和CSS样式-->
+<script type="text/javascript" src="<%=app%>/js/common.js"></script>
+<script type="text/javascript" src="<%=app%>/js/validate.js"></script>
+
+<link href="<%=app%>/css/css_<%=style%>.css" rel="stylesheet" type="text/css"/>
+</HEAD>
+<body >
+<form name="menuForm" method="post" action="">
+
+<% 
+//保存查询条件
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+    String ${col.Name.toLowerCase()} = DBUtil.null2String(request.getParameter("${col.Name.toLowerCase()}Search"));
+#end
+#end
+
+	String sortName =DBUtil.null2String(request.getParameter("sortName"));
+	String sortType =DBUtil.null2String(request.getParameter("sortType"));
+%>
+ <input type='hidden' class="input3" name="sortName" value="<%=sortName%>"/>
+ <input type='hidden' class="input3" name="sortType" value="<%=sortType%>"/>
+   <!-- 查询条件显示区域 -->
+ <table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td height="1" class="bgcolor1"></td>
+  </tr>
+  	 <tr>
+	    <td class="bgcolor5">
+<table id="tblSearch" width="100%" id="sa1" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+#set ( $fkFlag=false )
+#set ( $fkPk="" )
+#foreach ( $col in $table.Columns )
+#if ( $col.isForeignKey() )
+#set ( $fk = $col.ForeignKey )
+#set ( $fTable = $table.Database.getTable($fk.ForeignTableName) )
+#foreach ( $fkcol in $fk.ForeignColumns )
+#if ( $fk.showCol.equals($fkcol) )
+#set ( $fkFlag=true )				
+#else
+#set ( $fkPk=$fkcol )
+#end
+#end
+#end
+#end
+#set ( $queryType = "" )
+#foreach ( $col in $table.Columns )
+#if ( $col.SearchShow )
+#if ( $col.JavaType=="int" )	
+#set ( $queryType = "Integer" )				
+#elseif ( $col.JavaType=="double" )		
+#set ( $queryType = "Double" )									
+#else	
+#set ( $queryType = "String" )				
+#end   
+#if ( $col.hasEnumValue()) 
+  <td>${col.chineseDescription}：
+           <html:select name="${col.Name.toLowerCase()}Search" value="<%=${col.Name.toLowerCase()}%>" >
+	         <option value="">全部</option>
+	         <html:options collection="${table.JavaName.toUpperCase()}.${col.JavaName.toUpperCase()}" value="value" key="key"/>
+	       </html:select>
+  </td>
+#else    
+    <td>${col.chineseDescription}：
+    <input type='text' class="input1" name="${col.Name.toLowerCase()}Search" value="<%=${col.Name.toLowerCase()}%>"/>
+	</td>
+#end
+#end
+#end
+      <td class="button1" style="CURSOR: hand" onClick="forSearch()"><a href="#" class="link4">搜 索</a></td>	
+	</tr>
+</table>
+ 		</td>
+	 </tr>
+</table>
+           <!--//标头-->
+<table class="table3" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr> <td></td></tr>
+</table> 
+<div class="tab_bottom_bg">
+     <table class="table6" width="100%" border="0" cellpadding="0" cellspacing="0">
+       <tr>
+         <td> <table border="0" cellpadding="0" cellspacing="0">
+             <tr>
+                 <td id="tda1" height="23" width="112" class="tabbg1" style="CURSOR:pointer;">${table.chineseDescription}查询</td>
+             </tr>
+           </table></td>
+       </tr>
+     </table>
+</div>
+<!--// 按钮 -->
+<table class="table3" width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td>        
+            <!--目前按钮转移到了底下，需要的话，自行调整到这里 -->            
+						<table class="table7"  align="right"  border="0" cellpadding="2" cellspacing="0">
+						     <tr>
+						        <td class="button2" align=center style="CURSOR: hand">
+						        <a href="#" class="link4" onClick="forCreate()">添 加</a></td>
+						        <td class="button2" align=center style="CURSOR: hand">
+						        <a href="#" class="link4" onClick="forupdate()">修 改</a></td>						        
+								 <td class="button2"  align=center style="CURSOR: hand">
+								 <A href="#" class="link4" onClick="forMutilDelete()" >批量删除</A></td>
+						    </tr> 
+						</table>                      	 
+                       </td>
+                    </tr>
+</table>
+
+<!--//数据显示列表-->
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td> 
+        <table width="100%" border="1" style="border-collapse:collapse" bordercolor="#D7D7D7" cellpadding="0" cellspacing="0">
+                            <tr height="22" class="tab_title_bg">
+                              <th width="3%"  align="center">
+                              <input name="selectall_checkbox" type="checkbox" title="全选/取消" onclick="selectall(document.menuForm,this,'primaryKey')" />
+                              </th>
+#set ( $flag=1 )
+#foreach ( $col in $table.Columns )
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.QueryShow && !$col.isForeignKey() )
+#if ( $col.hasEnumValue() )
+	<!-- 枚举列-->   <th align="center" width="10%" title='$col.chineseDescription' style="CURSOR: hand" id='$col.Name' onclick="toOrder('$col.Name')">$col.chineseDescription</th>
+#elseif ( $col.isPrimaryKey() )
+	<!-- 主键列-->   <th align="center" width="10%" title='$col.chineseDescription' style="CURSOR: hand" id='$col.Name' onclick="toOrder('$col.Name')">$col.chineseDescription</th>
+#else
+	<!-- 一般列-->   <th align="center" width="10%" title='$col.chineseDescription' style="CURSOR: hand" id='$col.Name' onclick="toOrder('$col.Name')">$col.chineseDescription</th>
+#end  
+#end
+#end		
+                    <th align="center" width="8%">操 作</th>                    
+                            </tr>
+                            
+				<%//数据循环输出
+				if(list!=null){
+				for(int i=0;i<list.size();i++){
+					 ${table.JavaName} view= (${table.JavaName})list.get(i); 
+				%>
+                          <tr height="22" class="<%if(i%2==0){%>td6<%}else{%>td7<%}%>" onmouseover="this.className='tr_o'"  <%if(i%2==0){%>onmouseout="this.className='tr_s'"<%}else{%>onmouseout="this.className='tr_d'"<%}%>>
+<!-- 主键选择列,多主键的话就将多个字段数据拼成一个字符串 #parse("pk/mutiPk.vm") ,自己在后台解析-->
+                            <td align="center"><input id="primaryKey" type="checkbox" name="primaryKey" value="<%=#parse("pk/mutiPk.vm")%>"></td>
+
+#set ( $flag=1 )
+#foreach ( $col in $table.Columns )
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+#set ( $cfc=$col.JavaName )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.QueryShow && !$col.isForeignKey() )
+#if ( $col.hasEnumValue() )
+	<!-- 枚举列-->   <td align="center"  title='$col.chineseDescription'> 	<html:label name="$clo" value="<%=view.get$cfc()%>" collection="${table.JavaName.toUpperCase()}.${col.JavaName.toUpperCase()}" labelProperty="value" labelKey="key" />	</td>
+#elseif ( $col.isPrimaryKey() )
+	<!-- 主键列-->   <td align="center"  title='$col.chineseDescription'> <%=view.get$cfc()%></td>
+#else
+	<!-- 一般列-->   <td align="center"  title='$col.chineseDescription'> <%=view.get$cfc()%></td>
+#end  
+#end
+#end                            
+                            <td align="center">
+                              <a href="#" onclick="edit('<%=#parse("pk/mutiPk.vm")%>')" ><font color="blue">编辑</font></a>
+                              <a href="#" onclick="forDelete('<%=#parse("pk/mutiPk.vm")%>')" ><font color="blue">|&nbsp;删除</font></a>
+                              <a href="#" onclick="view('<%=#parse("pk/mutiPk.vm")%>')" ><font color="blue">|&nbsp;查看</font></a>
+                              </td>
+                            </tr>
+				<%}}%>
+                          </table></td>
+                    </tr>
+                    <!----------end:数据记录部分----------------------------->
+                    <!----------start:上下翻页------------------>
+                    <tr>
+                      <td class="td11">
+<!--分页显示模块  -->
+<%@include file="/pm/pagefoot.jsp" %>  
+					  </td>
+                    </tr>
+                    <!----------end:上下翻页------------------>
+</table>
+
+<!--// 按钮 
+<table align="center" border="0" cellpadding="3" cellspacing="1">
+     <tr>
+        <td class="button2" align=center style="CURSOR: hand">
+        <a href="#" class="link4" onClick="forCreate()">添 加</a></td>
+        
+		 <td class="button2"  align=center style="CURSOR: hand">
+		 <A href="#" class="link4" onClick="forMutilDelete()" >删 除</A></td>
+
+    </tr> 
+</table>
+-->
+</form>
+</body>
+</HTML>
+<script language="javascript">
+
+function forCreate(){
+  document.forms[0].action ="${table.JavaName.toLowerCase()}!preCreate.action?action=preCreate";    
+  document.forms[0].submit();	
+}
+function view( primaryKey){
+  document.forms[0].action ="${table.JavaName.toLowerCase()}!detail.action?action=detail&primaryKey="+primaryKey;    
+  document.forms[0].submit();		
+}
+function edit( primaryKey){
+  
+  document.forms[0].action ="${table.JavaName.toLowerCase()}!forupdate.action?action=forupdate&primaryKey="+primaryKey;    
+  document.forms[0].submit();	
+}
+
+function forupdate(){
+	var primaryKey=getSelect('primaryKey');
+	if(primaryKey==""||primaryKey.indexOf(",")!=-1){
+		alert('您需要选择且只能选择一条记录');
+		return ;
+	}
+	edit( primaryKey);	
+}
+
+function forDelete( primaryKey){
+ 
+  document.forms[0].action ="${table.JavaName.toLowerCase()}!delete.action?action=delete&primaryKey="+primaryKey;   
+  document.forms[0].submit();	
+}
+
+function forMutilDelete(){
+	del(document.forms[0],'primaryKey',
+		'<%=app%>/${table.JavaName.toLowerCase()}!delete.action?action=delete',
+		'您需要选择至少一条记录');
+
+}
+
+//搜索
+function forSearch(){
+	var url="<%=app%><%=linkPath%>";
+	document.forms[0].action =url;
+  	document.forms[0].submit();	
+}
+function toOrder(sortName){
+	var sortType=$('sortType');
+	if(sortType.value=='DESC')
+		sortType.value='ASC';
+	else
+		sortType.value='DESC';
+	$('sortName').value=sortName;
+	document.forms[0].submit();	
+}
+	var oldsortType='<%=sortType%>';
+	$('sortType').value=oldsortType;
+	var orderField=$('<%=sortName%>');
+	if(orderField)
+ 	orderField.innerHTML=orderField.innerHTML+"<img src='<%=app%>/images/<%=sortType.toLowerCase()%>.gif' align='absmiddle'>";
+
+</script>

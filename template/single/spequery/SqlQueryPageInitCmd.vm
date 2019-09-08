@@ -1,0 +1,103 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+/*
+ * 程序生成时间：[$now] 生成
+ */
+package ${package}.action;
+//导入java类
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import net.mast.waf.mvc.QueryCommandSupportWithSqlInit;
+import net.mast.waf.mvc.QueryHelper;
+/**
+ * 功能:本类为${table.chineseDescription}的QueryCommand
+ *
+ * @author  huangdos
+ * @date    [$now]
+ */
+public class ${table.JavaName}SqlQueryWithSqlInitAction extends QueryCommandSupportWithSqlInit {
+    private static Log log = LogFactory.getLog(${table.JavaName}SqlQueryWithSqlInitAction.class);
+
+    /**
+     * 翻页初始化单sql查询	${table.chineseDescription}
+     * @param req
+     * @param rep
+     * @param helper
+     * @param map
+     * @return
+     */
+    public String processParameter(
+        HttpServletRequest req,
+        HttpServletResponse rep,
+        QueryHelper queryHelper,
+        Map map) {
+        //如果要设置 记录查询 最大行数，请把下面一行注释拿掉
+        //queryHelper.getRowSelection().setMaxRows(new Integer(maxNumber));//maxNumber由自己根据具体情况指定
+#set ( $arrayLen=0 )
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+#set ( $arrayLen=$arrayLen +1 )
+#end
+#end
+        //传数据值 给 sql中的问号
+        String [] searchId=new String[$arrayLen];
+#set ( $num=0 )
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+		searchId[$num]= (String) map.get("${col.Name}");
+        if (searchId[$num] != null) {
+            if ((!searchId[$num].equalsIgnoreCase(""))) {
+                //下面一行根据您的需要配置
+                req.setAttribute("根据您的需要配置",searchId[$num]+"%");
+            } else {
+            	//下面一行根据您的需要配置
+            	req.setAttribute("根据您的需要配置", "%");
+        	}
+        }
+#set ( $num=$num +1 )
+#end
+#end
+        //动态sql部分
+        this.setAppendSql(getAddSql(map));
+        return "speQuery.querywithsqlinit";
+    }
+
+	/**
+     * @param req
+     * @param list
+     * @return
+     */
+    public void processList(HttpServletRequest req, List list) {
+        Map map = null;
+        for (int i = 0; i < list.size(); i++) {
+            map = (Map) list.get(i);
+            //下面一行根据您的情况来加入处理数据
+            map.put("OTHER", "您要处理的数据");
+        }
+    }
+
+    /**
+     *由processParameter方法调用
+     * @param map
+     * @return
+     */
+    private String getAddSql(Map map) {
+        StringBuffer sb = new StringBuffer();		
+        String sortName = (String) map.get("sortName");
+        String sortType = (String) map.get("sortType");
+        if (sortName != null && !sortName.equals("")) {
+            if (sortName.indexOf("OTHER") == -1) {
+                sb.append(" ORDER BY ");
+                sb.append(sortName);
+                sb.append(" ");
+                sb.append(sortType);
+            }
+        }
+        return sb.toString();
+    }
+}

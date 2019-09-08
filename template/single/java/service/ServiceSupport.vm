@@ -1,0 +1,113 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import com.ai.appframe2.service.ServiceFactory;
+import com.alibaba.fastjson.JSON;
+import com.szjk.dhome.common.Page;
+import com.szjk.dhome.common.util.ArrayObjectToListMapUtil;
+import ${package}.entity.${table.JavaName}Entity;
+import ${package}.service.interfaces.I${table.JavaName}FSV;
+import ${package}.service.interfaces.I${table.JavaName}SV;
+
+
+ /**
+ * @author chenzx
+ * @date [$now]
+ * @desc 本类为${table.chineseDescription}的Service实现类${table.JavaName}ServiceImpl,事物控制通过配置文件配置完成，实现模式为代理模式
+ */
+ 
+ 
+public class ${table.JavaName}FSVImpl implements I${table.JavaName}FSV {
+
+	  @Override
+	  public Map<String, Object> save${table.JavaName}Entity(Map<String, Object> map) throws Exception {
+	    
+	    String json = JSON.toJSONString(map);
+	    ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = JSON.parseObject(json,${table.JavaName}Entity.class);
+	    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+	    long id = iSV.save${table.JavaName}Entity(new ${table.JavaName}Entity[]{${strings.lowercaseFirstLetter($table.JavaName)}Entity});
+	    
+	    return ArrayObjectToListMapUtil.getReturnMapFromId(id);
+	  }
+
+
+
+
+  
+ /**
+  * 查详情
+  * @param map
+  * @return
+  * @throws Exception
+  */
+  public Map<String,Object> query${table.JavaName}EntityDetail(Map<String,Object> map) throws Exception{
+  	 String json = JSON.toJSONString(map);
+    ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = JSON.parseObject(json,${table.JavaName}Entity.class);
+    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+    ${strings.lowercaseFirstLetter($table.JavaName)}Entity = iSV.query${table.JavaName}EntityDetail(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+    return ArrayObjectToListMapUtil.getReturnMapSingleFromBean(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+  }
+  
+  /**
+   * 不分页查列表
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> query${table.JavaName}Entity(Map<String,Object> map) throws Exception{
+  	 String json = JSON.toJSONString(map);
+    ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = JSON.parseObject(json,${table.JavaName}Entity.class);
+    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+    List<${table.JavaName}Entity> list${table.JavaName}Entity = iSV.query${table.JavaName}Entity(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+    return ArrayObjectToListMapUtil.getReturnMapListFromBeans(list${table.JavaName}Entity.toArray());
+  }
+  
+  /**
+   * 分页查列表
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> query${table.JavaName}EntityByPage(Map<String,Object> map) throws Exception{
+  	 String json = JSON.toJSONString(map);
+    ${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity = JSON.parseObject(json,${table.JavaName}Entity.class);
+    Page page = ArrayObjectToListMapUtil.getPage(map);
+    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+    List<${table.JavaName}Entity> list${table.JavaName}Entity = iSV.query${table.JavaName}EntityByPage( ${strings.lowercaseFirstLetter($table.JavaName)}Entity,page);
+    return ArrayObjectToListMapUtil.getReturnMapListFromBeansPage(list${table.JavaName}Entity.toArray(), page);
+  }
+  
+  /**
+   * 修改或逻辑删
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> update${table.JavaName}Entity(Map<String,Object> map) throws Exception{
+  	 String json = JSON.toJSONString(map);
+    ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = JSON.parseObject(json,${table.JavaName}Entity.class);
+    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+    iSV.update${table.JavaName}Entity(new ${table.JavaName}Entity[]{${strings.lowercaseFirstLetter($table.JavaName)}Entity});
+    return ArrayObjectToListMapUtil.getReturnMapNoParam();
+  }
+  
+  /**
+   * 物理删
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public Map<String,Object> delete${table.JavaName}Entity(Map<String,Object> map) throws Exception{
+  	 String json = JSON.toJSONString(map);
+    ${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity  = JSON.parseObject(json,${table.JavaName}Entity.class);
+    I${table.JavaName}SV iSV = (I${table.JavaName}SV) ServiceFactory.getService(I${table.JavaName}SV.class);
+    iSV.delete${table.JavaName}Entity(new ${table.JavaName}Entity[]{${strings.lowercaseFirstLetter($table.JavaName)}Entity});
+    return ArrayObjectToListMapUtil.getReturnMapNoParam();
+  }
+  
+
+ 
+}

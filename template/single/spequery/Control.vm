@@ -1,0 +1,88 @@
+#set ($basePath = $generator.OutputPath)
+#foreach ($databaseModel in $appData.Databases)
+#foreach ($table in $databaseModel.Tables)
+#set ( $tblName = $table.JavaName.toLowerCase() )
+#set ( $firstcap=$table.Name.toLowerCase() )
+#if ( $table.pkg )
+#set ( $tblPackage = $table.pkg )
+#else
+#set ( $tblPackage = $tblName )
+#end
+#if ( $table.JspPath )
+#set ( $pkjsp = "${table.JspPath}" )
+#else
+#set ( $pkjsp = "${tblPackage}" )
+#end
+##只生成单表的特殊查询代码
+#if(!$table.hasHead() && !$table.hasLine())
+##SpeQueryConf开始
+#set ( $pkspequeryconf = "conf.${tblPackage}" )
+#set ( $path = $strings.getPackageAsPath($pkspequeryconf))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName.toLowerCase()}SpeQueryConf.xml" )
+#set ( $path = "${strings.getPackageAsPath($pkspequeryconf)}$fname" )   
+$generator.parse("single/java/conf/SpeQueryConf.vm",$path,"table",$table)
+##SpeQueryConf结束
+
+##特殊查询开始
+##一、无翻页初始化特殊查询
+#set ( $pkbaseNoPageInit = "${topPackage}${tblPackage}.query" )
+#set ( $path = $strings.getPackageAsPath($pkbaseNoPageInit))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}QueryNoPageInitCmd.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseNoPageInit)}$fname" )   
+$generator.parse("single/spequery/SpeQueryNoPageInitCmd.vm",$path,"table",$table)
+
+##二、翻页初始化特殊查询
+#set ( $pkbasePageInit = "${topPackage}${tblPackage}.query" )
+#set ( $path = $strings.getPackageAsPath($pkbasePageInit))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}QueryPageInitCmd.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasePageInit)}$fname" )   
+$generator.parse("single/spequery/SpeQueryPageInitCmd.vm",$path,"table",$table)
+
+##三、翻页未初始化特殊查询
+#set ( $pkbasePageNoInit = "${topPackage}${tblPackage}.query" )
+#set ( $path = $strings.getPackageAsPath($pkbasePageNoInit))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}QueryPageNoInitCmd.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbasePageNoInit)}$fname" )   
+$generator.parse("single/spequery/SpeQueryPageNoInitCmd.vm",$path,"table",$table)
+
+##四、翻页初始化单sql查询
+#set ( $pkbaseSqlWithInit = "${topPackage}${tblPackage}.query" )
+#set ( $path = $strings.getPackageAsPath($pkbaseSqlWithInit))
+$files.mkdir("$outputDirectory/$path") 
+
+#set ( $fname = "${table.JavaName}SqlQueryWithSqlInitCmd.java" )
+#set ( $path = "${strings.getPackageAsPath($pkbaseSqlWithInit)}$fname" )
+$generator.parse("single/spequery/SqlQueryPageInitCmd.vm",$path,"table",$table)
+##特殊查询结束
+
+##特殊查询Jsp开始
+#set ( $path = $strings.getPackageAsPath($pkjsp))
+$files.mkdir("$outputDirectory/$path")
+
+#set ( $fname = "${firstcap}_query_init.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/speQueryInit.vm",$path,"table",$table)    
+
+#set ( $fname = "${firstcap}_query_noinit.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/speQueryNoInit.vm",$path,"table",$table)
+
+#set ( $fname = "${firstcap}_query_nopage.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/speQueryNoPageInit.vm",$path,"table",$table)
+
+#set ( $fname = "${firstcap}_query_sqlinit.jsp" )
+#set ( $path = "${strings.getPackageAsPath($pkjsp)}$fname" )
+$generator.parse("single/jsp/speQuerySqlInit.vm",$path,"table",$table)
+##特殊查询Jsp结束
+#end
+#end
+#end

@@ -1,0 +1,2 @@
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)#if($comma),#end${strings.lowercaseFirstLetter($table.JavaName)}.get${pk.JavaName}()#set( $comma = true )#end

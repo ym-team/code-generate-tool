@@ -1,0 +1,67 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.service;
+import java.util.Map;
+import java.util.List;
+import net.mast.util.Page;
+import net.mast.util.RowSelection;
+
+import ${package}.view.${table.JavaName}View;
+
+/**
+ * 功能:本类为${table.chineseDescription}的Service接口
+ * @author  huangdos
+ * @date    [$now]
+ */
+public interface I${table.JavaName}Service {
+    /**
+     * @param #parse("pk/pk.vm")
+     批量删除
+     */
+    public int batchdelete${table.JavaName}(#parse("pk/batchpkA.vm"));   
+	/**
+     * 删除	${table.chineseDescription}	一条记录
+     * @param #parse("pk/pk.vm")
+     
+     */
+    public int delete${table.JavaName}(#parse("pk/pkA.vm"));
+    /**
+     * 取得	${table.chineseDescription}	一条明细
+     * @param #parse("pk/pk.vm")
+     
+     * @return
+     */
+    public ${table.JavaName}View get${table.JavaName}View(#parse("pk/pkA.vm"));
+    /**
+	 * 根据自行拼装的条件查找一条数据
+	 * @param condition 条件需要以 and 开头
+	 * @return
+	 */
+	public ${table.JavaName}View findByCondition(String condition);
+    /**
+     * 查询	${table.chineseDescription}	一页记录
+     * @param rowSelection
+     * @param map
+     * @return
+     */
+    public Page getAll${table.JavaName}(RowSelection rowSelection,Map map);
+
+    /**
+     * 查询	${table.chineseDescription}	全部记录
+     * @param map
+     * @return
+     */
+	public List getAll${table.JavaName}NoPage(Map map);
+
+	/**
+     * 插入	${table.chineseDescription}	一条记录
+     * @param ${table.JavaName.toLowerCase()}
+     * @return
+     */
+    public ${table.JavaName}View insert${table.JavaName}(${table.JavaName}View ${table.JavaName.toLowerCase()});
+    /**
+     * 修改	${table.chineseDescription}	一条记录
+     * @param ${table.JavaName.toLowerCase()}
+     * @return
+     */
+    public ${table.JavaName}View update${table.JavaName}(${table.JavaName}View ${table.JavaName.toLowerCase()});
+}

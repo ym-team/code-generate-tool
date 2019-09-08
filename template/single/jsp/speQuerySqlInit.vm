@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<%@ page contentType="text/html; charset=GBK"%>
+
+<%@ page import="com.zdvictory.jdbc.PageInfo"%>
+<%@ page import="java.util.*"%>
+<%@ page import="com.zdvictory.mp.MP_MESSAG.view.MpMessag"%>
+<%@ taglib uri="http://jsptags.com/tags/navigation/pager" prefix="pg" %>
+
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=GBK"/>
+<TITLE>${table.chineseDescription}查询</TITLE>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/common.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/validate.js"></script>
+</HEAD>
+<BODY topmargin="10px">
+<script language="javascript" src="<loushang:ui js='flexgrid.js'/>"></script>
+<link rel="stylesheet" type="text/css" href="<loushang:ui css='flexgrid.css'/>">
+<% 
+#foreach ($col in $table.Columns)
+#if ( $col.SearchShow )
+    String ${col.Name.toLowerCase()} = request.getParameter("${col.Name.toLowerCase()}Search");
+	if (${col.Name.toLowerCase()}==null){
+	  ${col.Name.toLowerCase()}="";
+	}
+#end
+#end
+%>
+<widgets:container title="${table.chineseDescription}查询" >
+<widgets:containbutton onclick="forInsert()" text="增加"></widgets:containbutton>
+<widgets:containbutton onclick="forUpdate()" text="修改"></widgets:containbutton>
+<widgets:containbutton onclick="forDetail()" text="明细"></widgets:containbutton>
+<widgets:containbutton onclick="forDelete()" text="删除"></widgets:containbutton>
+<html:messages></html:messages>
+<html:form name="frmList" action="${table.JavaName.toLowerCase()}query_sql_init.cmd">
+<table id="tblSearch">
+<flex:search>
+	<tr>
+#set ( $fkFlag=false )
+#set ( $fkPk="" )
+#foreach ( $col in $table.Columns )
+#if ( $col.isForeignKey() )
+#set ( $fk = $col.ForeignKey )
+#set ( $fTable = $table.Database.getTable($fk.ForeignTableName) )
+#foreach ( $fkcol in $fk.ForeignColumns )
+#if ( $fk.showCol.equals($fkcol) )
+#set ( $fkFlag=true )				
+#else
+#set ( $fkPk=$fkcol )
+#end
+#end
+#end
+#end
+#set ( $queryType = "" )
+#foreach ( $col in $table.Columns )
+#if ( $col.SearchShow )
+#if ( $col.JavaType=="int" )	
+#set ( $queryType = "Integer" )				
+#elseif ( $col.JavaType=="double" )		
+#set ( $queryType = "Double" )									
+#else	
+#set ( $queryType = "String" )				
+#end       
+    <td>${col.chineseDescription}：<flex:searchText name="${col.Name.toLowerCase()}Search" searchName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}" dataType="java.lang.${queryType}" operSymbol="=" value="<%=${col.Name.toLowerCase()}%>" size="12">
+	</flex:searchText></td>
+#end
+#end	
+	<td><flex:searchImg name="chaxun" action="${table.JavaName.toLowerCase()}query_sql_init.cmd" image="search.gif"/></td>
+	</tr>
+</flex:search>
+</table>
+<flex:flexgrid name="grid" height="200" action="" isSubmit="true">
+#set ( $flag=1 )
+#foreach ( $col in $table.Columns )
+#set ( $dquote ='"' )
+#set ( $dollar ='$' )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#if ( $col.QueryShow && !$col.isForeignKey() )
+#if ( $col.isPrimaryKey()&&$flag==1 )
+#set ( $flag=0 )
+				<flex:checkboxCol caption="选择" width="100" property=${dquote}${dollar}#parse("pk/pkArgs.vm")$dquote name="primaryKey" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:checkboxCol>
+#elseif ( $col.isPrimaryKey() )
+				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:flexCol>
+#elseif ( $col.hasEnumValue() )
+				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" type="enum" enumCollection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" enumKey ="key" enumValue="value" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:flexCol>
+#else
+				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:flexCol>
+#end    
+#elseif ( !$col.isForeignKey() )
+  				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}" style="display:none"></flex:flexCol>
+#else
+#if( $fkFlag==false )
+				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" type="enum" enumCollection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" enumKey ="$fk.showCol" enumValue="$fkPk" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:flexCol>
+#else
+				<flex:flexCol caption='<%=ResourcesFactory.getString("${table.Name}.${col.Name}")%>' width="100" property="$clo" sortName="${table.Name.toUpperCase()}.${col.Name.toUpperCase()}"></flex:flexCol>
+#end
+#end
+#end				
+</flex:flexgrid>
+<flex:pagePolit action="${table.JavaName.toLowerCase()}query_sql_init.cmd" pageSize="5">
+</flex:pagePolit>
+</html:form>
+</widgets:container>
+<script language="javascript">
+grid.show();
+function forInsert(){
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=forinsert";    
+  document.forms[0].submit();	
+}
+function forUpdate(){
+  if(!getSelect()) return;
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=forupdate";    
+  document.forms[0].submit();	
+}
+function forDetail(){
+  if(!getSelect()) return;
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=detail";    
+  document.forms[0].submit();	
+}
+function forDelete(){
+  if(!getDelete()) return;
+  document.forms[0].action ="${table.JavaName.toLowerCase()}.cmd?method=delete";    
+  document.forms[0].submit();	
+}
+function getSelect(){
+  var sel=grid.getCheckLine();
+  if(sel==""){
+    alert("请选择一条记录!");
+    return false;
+  }
+  var obj=sel.split(",");  
+  if(obj.length*1>1){
+    alert("请选择一条记录!");
+    return false;
+  }  
+  return true;
+}
+function getDelete(){
+  var sel=grid.getCheckLine();
+  if(sel==""){
+    alert("请选择要删除的记录!");
+    return false;
+  }
+  if (!confirm("真的要删除选中的纪录吗？此操作不能恢复！")) {
+   	     return false;
+   	     }  
+  return true;
+}
+</script>

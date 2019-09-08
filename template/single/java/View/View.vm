@@ -1,0 +1,176 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.view;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.io.Serializable;
+import ${package}.data.${table.JavaName};
+
+/**
+ * @author cyy
+ * @date [$now]
+ * @desc 功能:本类${table.chineseDescription}数据View类
+ */
+public class ${table.JavaName}View extends ${table.JavaName} implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+    /**
+    * ${table.JavaName}构造函数
+    */
+	public ${table.JavaName}View() {
+        super();
+    }
+#if($table.hasHead())
+      /**
+	* 是否删除标志
+	*/
+    private int isDelete;
+#end
+
+#if($table.hasLine())
+	//${table.chineseDescription}增加一个明细行
+	public void add${table.LineTable.JavaName}(${table.LineTable.JavaName}DataBean line){
+		if(this.list${table.LineTable.JavaName} == null)
+			list${table.LineTable.JavaName} = new ArrayList();
+		list${table.LineTable.JavaName}.add(line);
+	}
+	
+	/**
+	 * @return
+	 */
+	public List getList${table.LineTable.JavaName}() {
+		return list${table.LineTable.JavaName};
+	}
+
+	/**
+	 * @param list
+	 */
+	public void setList${table.LineTable.JavaName}(List list) {
+		list${table.LineTable.JavaName} = list;
+	}
+#end
+
+#foreach ($col in $table.Columns)
+#set ( $cfc=$col.JavaName )
+#set ( $clo=$col.Name.toLowerCase() )
+#set ( $cjtype = $col.JavaType )
+#if ( $col.JavaType=="byte[]" )
+#set ( $cjtype = "Blob" )
+#end
+    
+    /**
+    * 属性 $col.chineseDescription $cfc 的get方法
+    * @return $cjtype
+    */
+#if ( $col.JavaType=="boolean" )
+    public String get${cfc}()
+    {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?"":${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="byte[]" )
+    public Blob get${cfc}()
+    {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?"":${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="BigDecimal" )
+    public $col.JavaType get${cfc}(){
+#if($col.JavaType=="BigDecimal")
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?new BigDecimal(0):${strings.lowercaseFirstLetter(${col.JavaName})};
+#else
+		return ${strings.lowercaseFirstLetter(${col.JavaName})};
+#end
+    }
+#elseif ( $col.JavaType=="Date" )
+    public $col.JavaType get${cfc}(){
+#if($col.JavaType=="BigDecimal")
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?null:${strings.lowercaseFirstLetter(${col.JavaName})};
+#else
+		return ${strings.lowercaseFirstLetter(${col.JavaName})};
+#end
+    }    
+#else
+    public $col.JavaType get${cfc}()
+    {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?"":${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#end
+
+    /**
+    * 属性 $col.chineseDescription $cfc 的set方法
+    * @return void
+    */
+#if ( $col.JavaType=="boolean" )
+    public void set${cfc} (String ${strings.lowercaseFirstLetter(${col.JavaName})})
+    {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="byte[]" )
+    public void set${cfc} (Blob ${strings.lowercaseFirstLetter(${col.JavaName})})
+    {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#else
+    public void set${cfc}($col.JavaType ${strings.lowercaseFirstLetter(${col.JavaName})})
+    {
+        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }    
+#end    
+        
+#end 
+
+#if($table.hasHead())
+      /**
+	* 是否删除标志的 set 方法
+	*/
+    public void setIsDelete (int isDelete)
+    {
+        this.isDelete = isDelete;
+    }
+    public int getIsDelete()
+    {
+        return this.isDelete;
+    }    
+#end
+  
+   	public String toString() {
+   	    StringBuffer sb = new StringBuffer();
+#set ($comma=false)
+#foreach ($col in $table.Columns)
+		sb.append("#if($comma)\",#else {#end \"${strings.lowercaseFirstLetter(${col.JavaName})}\":\"").append( ${strings.lowercaseFirstLetter(${col.JavaName})});
+#set ($comma = true)
+#end   	    
+        sb.append("\"}");
+        return sb.toString();
+   	}
+   	
+#if($table.hasLine())
+	public List getLinesList(){
+		return this.list${table.LineTable.JavaName};
+	}
+	public DataBean[] getLinesArray(){
+		return (DataBean[])this.list${table.LineTable.JavaName}.toArray();
+	}
+	public int getLineSize(){
+		return this.list${table.LineTable.JavaName}.size();
+	}
+	public void setLinesByList(List lines){
+		this.list${table.LineTable.JavaName} = lines;
+	}
+	public DataBean getLine(int i){
+		return (DataBean)this.list${table.LineTable.JavaName}.get(i);
+	}
+	public void setLine(int idx, DataBean line){
+		this.list${table.LineTable.JavaName}.add(idx,line);
+	}
+	public void addLine(DataBean line){
+		this.list${table.LineTable.JavaName}.add(line);
+	}
+	public void setLinesByArray(DataBean[] lines){
+		this.list${table.LineTable.JavaName} = Arrays.asList(lines);
+	}	
+	public DataBean delLine(int idx){
+		return (DataBean)this.list${table.LineTable.JavaName}.remove(idx);
+	}
+#end
+    
+}

@@ -1,0 +1,4 @@
+#set($multiPk=false)
+#foreach ($pk in $table.PrimaryKeys)
+#set ( $cfc=$pk.JavaName )
+#if($multiPk)+":"+ #end view.get$cfc() #set($multiPk=true)#end

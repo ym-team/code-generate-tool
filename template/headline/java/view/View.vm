@@ -1,0 +1,162 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.view;
+//导入 java 类1115
+import java.math.BigDecimal;
+import java.io.Serializable;
+import java.util.*;
+import ${package}.data.${table.JavaName};
+
+#if($table.hasLine())
+import net.mast.web.taglib.util.IAddEditGrid;
+import ${topPackage}${table.LineTable.pkg}.view.${table.LineTable.JavaName}View;
+
+#end
+#if($table.hasHead())
+import net.mast.web.taglib.util.IDelete;
+#end
+
+/**
+ * 功能:本类${table.chineseDescription}数据DataBean类
+ */
+#if($table.hasLine())
+public class ${table.JavaName}View extends ${table.JavaName} implements Serializable ,IAddEditGrid{
+#end
+#if($table.hasHead())
+public class ${table.JavaName}View extends ${table.JavaName} implements Serializable ,IDelete{
+#end
+
+ #if($table.hasLine())
+  //定义 行数据集合
+//  private List list${table.LineTable.JavaName} = new ArrayList();
+  #end
+ #foreach ($col in $table.Columns)
+  #set ( $cjtype = $col.JavaType )
+  #set ( $clo=$col.Name.toLowerCase() )
+  #set ($defVal = "")
+  #if ($col.DefaultValue && !$col.DefaultValue.equalsIgnoreCase("NULL") )
+    #set ( $quote = '' )
+    #if ( $cjtype == "String" ) 
+      #set ( $quote = '"' )
+    #end
+    #set ( $defaultValue = $col.DefaultValue )
+    #if ( $cjtype == "boolean" )
+      #if ( $defaultValue == "1" || $defaultValue == "Y" )
+        #set ( $defaultValue = "true" )
+      #elseif ( $defaultValue == "0" || $defaultValue == "N" )
+        #set ( $defaultValue = "false" )
+      #end
+    #end
+    #set ($defVal = "=$quote$defaultValue$quote")
+  #end
+	// ${strings.lowercaseFirstLetter(${col.JavaName})} $col.chineseDescription ${col.Name}
+    #if ( $col.JavaType=="boolean" )
+##    private String ${strings.lowercaseFirstLetter(${col.JavaName})};
+    #else
+##    private $cjtype ${strings.lowercaseFirstLetter(${col.JavaName})};
+    #end        
+#end
+    
+    /**
+    * ${table.JavaName}构造函数
+    */
+	public ${table.JavaName}View() {
+       super();
+    }
+#if($table.hasHead())
+      /**
+	* 是否删除标志
+	*/
+//    private String isDelete = "0";
+#end
+
+     #if($table.hasLine())	
+ 
+	public List getList${table.LineTable.JavaName}() {
+		return list${table.LineTable.JavaName};
+	}
+
+ 
+	public void setList${table.LineTable.JavaName}(List list) {
+		list${table.LineTable.JavaName} = list;
+	}
+ 
+    public void setAddGridDetail(String[] arg0) {
+        if(arg0==null){
+            return;
+        }
+        int itemNum = Integer.parseInt(arg0[0]);
+        for (int i = 0; i < itemNum; i++) {
+            list${table.LineTable.JavaName}.add(new ${table.LineTable.JavaName}View());
+        }
+    }
+     #end
+
+#foreach ($col in $table.Columns)
+  #set ( $cfc=$col.JavaName )
+  #set ( $clo=$col.Name.toLowerCase() )
+  #set ( $cjtype = $col.JavaType )
+    
+    /**
+    * 属性 $cfc 的get方法
+    * @return $cjtype
+    */
+    #if ( $col.JavaType=="boolean" )
+    public String get${cfc}(){
+        return ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }    
+#elseif ( $col.JavaType=="boolean" || $col.JavaType=="String")
+    public String get${cfc}()
+    {
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?"":${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#elseif ( $col.JavaType=="byte[]")
+    public Blob get${cfc}(){
+        return ${strings.lowercaseFirstLetter(${col.JavaName})};
+    }
+#else
+    public $col.JavaType get${cfc}(){
+#if($col.JavaType=="BigDecimal")
+        return ${strings.lowercaseFirstLetter(${col.JavaName})}==null?new BigDecimal(0):${strings.lowercaseFirstLetter(${col.JavaName})};
+#else
+		return ${strings.lowercaseFirstLetter(${col.JavaName})};
+#end
+    }
+#end
+
+    #if ( $col.JavaType=="boolean" )
+##    public void set${cfc} (String ${strings.lowercaseFirstLetter(${col.JavaName})}) {
+##        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+##    }
+    #else
+##    public void set${cfc}($col.JavaType ${strings.lowercaseFirstLetter($col.JavaName)}){
+##        this.${strings.lowercaseFirstLetter(${col.JavaName})} = ${strings.lowercaseFirstLetter(${col.JavaName})};
+##    }    
+    #end    
+        
+#end 
+
+#if($table.hasHead())
+      /**
+	* 是否删除标志的 set 方法
+	*/
+    public void setIsDelete (String isDelete){
+        this.isDelete = isDelete;
+    }
+    public String getIsDelete(){
+        return this.isDelete;
+    }    
+#end
+    //以JSON 的模式输出
+   	public String toString(){
+   	    StringBuffer sb = new StringBuffer();
+#set ($comma=false)
+#foreach ($col in $table.Columns)
+		// $col.chineseDescription
+        sb.append("#if($comma)',#else {#end '${strings.lowercaseFirstLetter(${col.JavaName})}':'"+ ${strings.lowercaseFirstLetter(${col.JavaName})});
+#set ($comma = true)
+#end   	    
+        sb.append("'}");
+        
+        return sb.toString();
+   	}   	
+}

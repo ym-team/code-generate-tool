@@ -1,0 +1,190 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
+<%@page import="red.sea.platform.code.CodeFactory"%>
+<%@ page import="${package}.data.${table.JavaName}" %>
+<%@ page import="${package}.view.${table.JavaName}View" %>
+<%@ page import="red.sea.commons.util.DateUtil" %>
+<%@ taglib uri="/WEB-INF/html.tld" prefix="html"%>
+<%
+	String contextPath = request.getContextPath();
+	request.setAttribute( "contextPath", contextPath );
+%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>查看信息</title>
+	<script type="text/javascript" src="${contextPath}/skins/library/jquery/jquery-1.7.2.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="${contextPath}/skins/library/bootstrap/css/bootstrap.min.css">
+	<script src="${contextPath}/skins/library/bootstrap/js/bootstrap.min.js"></script>	
+	<!-- 自定义样式 -->
+	<link rel="stylesheet" type="text/css" href="${contextPath}/skins/style/css/common.css">
+	<link rel="stylesheet" type="text/css" href="${contextPath}/skins/style/css/icon.css"> 
+	<script type="text/javascript" src="${contextPath}/skins/js/common/pubfunction.js"></script>	
+</head>
+<body class="bgcolor3">
+	<%
+		${table.JavaName}View vo = (${table.JavaName}View) request.getAttribute("${table.JavaName}");
+		if (vo == null) {
+			vo = new ${table.JavaName}View();
+		}
+	%>
+	<div class="breadcrumb">
+		<div class="active">
+		 	<a>${table.chineseDescription}查看</a>
+		</div>
+		<form id="form1" name="form1" method="post" action="${table.JavaName}.mc?method=update${table.JavaName}Jsp" border="0">
+			<table width="100%" border="0" cellpadding="4" cellspacing="0" class="table table-bordered table-striped" align="center">
+		 		
+		 		
+#set ( $size = "")
+#set ( $maxlength = "")
+#set ( $totalsize = 0 )
+#set ( $nSize = 0 )
+#foreach ( $col in $table.Columns )
+#set ( $clo=${strings.lowercaseFirstLetter($col.JavaName)})
+#set ( $dquote='"' )
+#set ( $cfc=$col.JavaName )
+#if ( $col.Size )
+#if ( $col.inputSize )    
+#set ( $size = "maxsize=${dquote}${col.inputSize}${dquote}" )            
+#else
+#set ( $size = "maxsize=${dquote}${col.Size}${dquote}" )    
+#end
+#set ( $maxlength = "maxlength=${dquote}${col.Size}${dquote}" )
+#end
+#if ( $col.Size )
+#if ( $col.inputSize )    
+#set ( $size = "maxsize=${dquote}${col.inputSize}${dquote}" )            
+#else
+#set ( $size = "maxsize=${dquote}${col.Size}${dquote}" )    
+#end
+#set ( $maxlength = "maxlength=${dquote}${col.Size}${dquote}" )
+#else
+#set ( $size = "maxsize=${dquote}8${dquote}" )
+#set ( $maxlength = "maxlength=${dquote}8${dquote}" )
+#end
+#set ( $nullable = "yes" )
+#if($col.isNotNull())
+	#set ( $nullable = "no" )
+#end
+#if ($col.UpdateShow)
+#if($col.isTextArea())
+				<tr height="22"> <!-- 文本区-->
+					<td align="right" class="td13">$col.chineseDescription ：</td>
+					<td class="td12">
+						<textarea name="$clo" cols="$col.Cols" rows="$col.Rows" id="$clo" cn_name="$col.chineseDescription" nullable="$nullable" datatype="textarea" $maxlength readonly="$col.UpdateReadonly">
+							<%=view.get${cfc}()%>
+						</textarea> 
+						#if($col.isNotNull())
+							<span class="red1">*</span> 
+						#end
+					</td>
+				</tr>
+#elseif($col.UpdateReadonly=="true")
+    			<tr>
+    				<td class="tdTitle">$col.chineseDescription ：</td>
+    				<td class="tdRight"><html:text name="$clo" property="$clo" $size $maxlength readonly="true"/></td>
+    			</tr>
+#elseif( $col.JavaType == "boolean" || $col.JavaType == "booleanchar" )
+				<tr>
+    				<td class="tdTitle">$col.chineseDescription ：</td>
+    				<td class="tdRight">
+#if($col.EnumValueList)
+#set($n=0)
+#foreach ($enum in $col.EnumValueList )
+	                	<html:radio name="$clo" property="$clo" value="$col.EnumNameList.get($n)">$enum</html:radio>
+#set($n=$n+1)
+#end
+#else
+    					<html:radio name="$clo" property="$clo" value="1">是</html:radio>
+    					<html:radio name="$clo" property="$clo" value="0">否</html:radio>
+#end
+					</td>
+				</tr>
+#elseif( $col.Format=="date" )
+				<tr>  <!-- 日期-->
+    				<td class="tdTitle">$col.chineseDescription ：</td>
+    				<td class="tdRight" valign=top>
+    					<%=DateUtil.parse(vo.get${cfc}(),"yyyy-MM-dd")%>
+					</td>
+				</tr>
+#elseif ( $col.hasEnumValue() ) 
+<%
+request.setAttribute("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}",CodeFactory.getCodeListByCodeType("${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}"));
+%>
+				<tr> 
+					<!-- 下拉枚举框-->
+    				<td class="titleright">$col.chineseDescription ：</td>
+    										
+    				<td><html:label name="${col.Name.toLowerCase()}" collection="${table.name.toUpperCase()}.${col.JavaName.toUpperCase()}"  value="<%=vo.get$cfc()%>" labelKey="code" onlyName="true" labelProperty="name"/>
+											</td>
+    			</tr>                    
+#elseif ( $col.isForeignKey() && ($col.ForeignKey.OnInsert == "select") )
+#set ( $fk = $col.ForeignKey )
+#foreach ( $fkcol in $fk.ForeignColumns )
+
+  				<tr> 
+  					<!-- 下拉框-->
+      				<td class="tdTitle">$col.chineseDescription ：</td>
+      				<td class="tdRight">
+				      	<html:select name="$clo" property="$clo" >
+				      	<html:options collection="${table.JavaName.toUpperCase()}_${col.JavaName.toUpperCase()}_COLLECTION" labelProperty="$fk.showCol" property="$fkcol" />
+				      	</html:select>
+      				</td>
+    			</tr>
+#end
+#else
+				<tr>
+					<td class="titleright">$col.chineseDescription ：</td>
+					<td>
+#if($col.Size && $col.JavaType == "String")
+#if($nSize.parseInt($col.Size)<350)
+						<%=vo.get${cfc}()%>
+#else
+						<%=vo.get${cfc}()%>
+#end
+#else
+	                	<%=vo.get${cfc}()%>
+#end            
+   					</td>
+				</tr>
+#end
+#else
+#if( $col.JavaType == "boolean" || $col.JavaType == "booleanchar" )
+				<tr>
+    				<td class="tdTitle">$col.chineseDescription ：</td>
+    				<td class="tdRight">
+#if($col.EnumValueList)
+#set($n=0)
+#foreach ($enum in $col.EnumValueList )
+	                	<html:radio name="$clo" property="$clo" value="$col.EnumNameList.get($n)">$enum</html:radio>
+#set($n=$n+1)
+#end
+#else
+    					<html:radio name="$clo" property="$clo" value="1">是</html:radio>
+    					<html:radio name="$clo" property="$clo" value="0">否</html:radio>
+#end
+	                </td>
+				</tr>
+#else     
+				<tr>
+					<td>$col.chineseDescription ：</td>
+					<td>
+						<%=vo.get${cfc}()%>                  
+					</td>
+				</tr>
+#end
+#end
+#end      		 
+				<!-- end:信息录入部分 -->
+				<tr>
+					<td >&nbsp;</td>
+					<td height="60">
+						<input type="button" class="btn-return" onclick="javascript:window.location.href='${table.JavaName}.mc?method=getAllPage${table.JavaName}&start=0&pageSize=10'" value="返回" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</body>
+</html>

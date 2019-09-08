@@ -1,0 +1,90 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.dao.interfaces;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import com.evergrande.common.Pagination;
+
+import ${package}.entity.${table.JavaName}Entity;
+
+/**
+ * @author czx
+ * @date [$now]
+ * @desc  ${table.chineseDescription}
+ */
+ 
+public interface ${table.JavaName}Mapper{
+	
+		/**
+	   * 新增
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return
+	   * @throws Exception
+	   */
+	public int save(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity  ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	
+	
+	
+
+	/**
+	   * 批量新增
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return
+	   * @throws Exception
+	   */
+	public int saveList(@Param("list${table.JavaName}Entity")List<${table.JavaName}Entity>  list${table.JavaName}Entity);
+	
+
+  	 /**
+	   * 查询详情
+	   * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	   * @return
+	   * @throws Exception
+	   */
+	public ${table.JavaName}Entity queryDetail(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+  
+	/**
+	 * 查询列表 
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return
+	 * @throws Exception
+	 */
+	public List<${table.JavaName}Entity> queryList(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  
+	/**
+	 * 分页查询列表 
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<${table.JavaName}Entity> queryListByPage(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity,@Param("page")Pagination page);
+	  
+	/**
+	 * 更新
+	 * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	 * @return
+	 * @throws Exception
+	 */
+	public int update(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	  
+	 /**
+	  * 物理删除
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  * @throws Exception
+	  */
+	public int delete(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	
+	/**
+	  * 查询总数
+	  * @param ${strings.lowercaseFirstLetter($table.JavaName)}Entity
+	  * @throws Exception
+	  */
+	public Long queryCount(@Param("${strings.lowercaseFirstLetter($table.JavaName)}Entity")${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+	
+	
+	  
+     
+
+}

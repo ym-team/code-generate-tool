@@ -1,0 +1,241 @@
+#set ( $package = "${topPackage}${table.pkg}" )
+package ${package}.handler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.evergrande.api.aop.loginCheck.LoginRequired;
+import com.evergrande.api.aop.loginCheck.LoginType;
+import com.evergrande.api.server.Handler;
+import com.evergrande.api.server.protocol.UrlMapping;
+import com.evergrande.common.CommLogger;
+import com.evergrande.common.utils.JsonUtil;
+import com.evergrande.common.valid.Validation;
+import com.plantform.sys.syscode.entity.${table.JavaName}Entity;
+import com.plantform.sys.syscode.entity.${table.JavaName}EntitySaveParam;
+import com.plantform.sys.syscode.entity.${table.JavaName}EntityQueryParam;
+import com.plantform.sys.syscode.entity.${table.JavaName}EntityDeleteParam;
+import com.plantform.sys.syscode.entity.${table.JavaName}EntityUpdateParam;
+import com.plantform.sys.syscode.service.interfaces.I${table.JavaName}Service;
+
+/**
+ * @author czx
+ * @date [$now]
+ *
+ */
+@Component
+public class ${table.JavaName}Handler implements Handler
+{
+	private static CommLogger logger = CommLogger.getInstance(${table.JavaName}Handler.class);
+	
+	@Autowired
+	private ${table.JavaName}Service ${strings.lowercaseFirstLetter($table.JavaName)}Sevice;
+	
+	/**
+	 * ҳ����ת ��ҳ��ѯ
+	 * @param ${table.JavaName}EntitySaveParam
+	 * @return	Long	
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/save")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public String save(@NotNull ${table.JavaName}EntitySaveParam ${strings.lowercaseFirstLetter($table.JavaName)}EntitySaveParam) throws Exception {
+		logger.info("${table.JavaName}Handler -> save 入参:" + JsonUtil.toJsonString(${table.JavaName}EntitySaveSaveParam));
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyPropertiesProperties(${table.JavaName}EntitySaveParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		Long id = this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.save(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		logger.info("${table.JavaName}Handler -> save 出参:" + id);
+		return id+"";
+	}
+	
+	/**
+	 * ����
+	 * @param List<${table.JavaName}EntitySaveParam>
+	 * @return boolean
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/saveList")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public boolean saveList(@NotNull @Size(min=1)List<${table.JavaName}EntitySaveParam> list${table.JavaName}EntitySaveParam)throws Exception {
+		logger.info("${table.JavaName}Handler -> saveList 入参:" + JsonUtil.toJsonString(list${table.JavaName}EntitySaveParam));
+		
+		List<${table.JavaName}Entity> list${table.JavaName}Entity = new ArrayList<${table.JavaName}Entity>();
+		
+		for(int i = 0 ; i < list${table.JavaName}EntitySaveParam.size() ; i++){
+			${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+			 ${table.JavaName}EntitySaveParam ${strings.lowercaseFirstLetter($table.JavaName)}EntitySaveParam = list${table.JavaName}EntitySaveParam.get(i);
+			 BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntitySaveParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+			list${table.JavaName}Entity.add(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		}
+		
+		 this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.saveList(list${table.JavaName}Entity);
+		 
+		 logger.info("${table.JavaName}Handler -> saveList 出参:" + true);
+		 
+		 return true;
+	}
+	
+	/**
+	 * ɾ��
+	 * @param ${table.JavaName}EntityQueryParam
+	 * @return	${table.JavaName}EntityQueryParam
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/queryDetail")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public ${table.JavaName}EntityQueryParam queryDetail(${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam)throws Exception{
+		logger.info("${table.JavaName}Handler -> queryDetail 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		${strings.lowercaseFirstLetter($table.JavaName)}Entity = this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryDetail(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}Entity,${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam);
+		
+		logger.info("${table.JavaName}Handler -> queryDetail 出参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+		return ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam;
+	}
+	
+	
+	/**@param ${table.JavaName}EntityQueryParam
+	 * @return List<${table.JavaName}EntityQueryParam>
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/queryList")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public List<${table.JavaName}EntityQueryParam> queryList(${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam)throws Exception{
+		logger.info("${table.JavaName}Handler -> queryList 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+		
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		List<${table.JavaName}Entity> list${table.JavaName}Entity = this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryList(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+
+		List<${table.JavaName}EntityQueryParam> list${table.JavaName}EntityQueryParam = new ArrayList<${table.JavaName}EntityQueryParam>();		
+		if(null != list${table.JavaName}Entity && list${table.JavaName}Entity.size()){
+			for(int i = 0 ; i < list${table.JavaName}Entity.size() ; i++){
+				${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam = new ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam();
+				${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity2 = list${table.JavaName}Entity.get(i);
+				BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}Entity2,${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam);
+				list${table.JavaName}EntityQueryParam.add(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam);
+			}
+		}
+		
+		logger.info("${table.JavaName}Handler -> queryList 出参:" + list${table.JavaName}EntityQueryParam.toString());
+		
+		return list${table.JavaName}EntityQueryParam;
+		
+	}
+	
+	
+	/**@param ${table.JavaName}EntityQueryParam
+	 * @return List<${table.JavaName}EntityQueryParam>
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/queryListByPage")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public List<${table.JavaName}EntityQueryParam> queryListByPage(${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam,Page page)throws Exception{
+		logger.info("${table.JavaName}Handler -> queryListByPage 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+	
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		List<${table.JavaName}Entity> list${table.JavaName}Entity = this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryList(${strings.lowercaseFirstLetter($table.JavaName)}Entity,page);
+
+		List<${table.JavaName}EntityQueryParam> list${table.JavaName}EntityQueryParam = new ArrayList<${table.JavaName}EntityQueryParam>();		
+		if(null != list${table.JavaName}Entity && list${table.JavaName}Entity.size()){
+			for(int i = 0 ; i < list${table.JavaName}Entity.size() ; i++){
+				${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam = new ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam();
+				${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity2 = list${table.JavaName}Entity.get(i);
+				BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}Entity2,${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam);
+				list${table.JavaName}EntityQueryParam.add(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam);
+			}
+		}
+		
+		logger.info("${table.JavaName}Handler -> queryListByPage 出参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+		
+		return list${table.JavaName}EntityQueryParam;
+	}
+	
+	
+	/**
+	 * ɾ��
+	 * @param ${table.JavaName}EntityQueryParam
+	 * @return	Long
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/queryCount")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public Long queryCount(${table.JavaName}EntityQueryParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam)throws Exception{
+		logger.info("${table.JavaName}Handler -> queryCount 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam.toString());
+		
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityQueryParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		Long count = this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.queryCount(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		logger.info("${table.JavaName}Handler -> queryCount 出参:" + count);
+		
+		return count;
+	}
+	
+	
+	/**
+	 * ɾ��
+	 * @param ${table.JavaName}EntityUpdateParam
+	 * @return	boolean
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/update")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public boolean update(${table.JavaName}EntityUpdateParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityUpdateParam)throws Exception{
+		logger.info("${table.JavaName}Handler -> update 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityUpdateParam.toString());
+		
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityUpdateParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.update(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		logger.info("${table.JavaName}Handler -> update 出参:" + true);
+		
+		return true;
+	}
+	
+	
+	/**
+	 * ɾ��
+	 * @param ${table.JavaName}EntityDeleteParam
+	 * @return	boolean
+	 * @throws Exception
+	 */
+	@UrlMapping("/${strings.lowercaseFirstLetter($table.JavaName)}/delete")
+	@Validation
+    @LoginRequired(loginType = LoginType.ALL)
+	public boolean delete(${table.JavaName}EntityDeleteParam ${strings.lowercaseFirstLetter($table.JavaName)}EntityDeleteParam)throws Exception{
+		logger.info("${table.JavaName}Handler -> delete 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityDeleteParam.toString());
+		
+		${table.JavaName}Entity ${strings.lowercaseFirstLetter($table.JavaName)}Entity = new ${table.JavaName}Entity();
+		BeanUtils.copyProperties(${strings.lowercaseFirstLetter($table.JavaName)}EntityDeleteParam,${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		this.${strings.lowercaseFirstLetter($table.JavaName)}Sevice.delete(${strings.lowercaseFirstLetter($table.JavaName)}Entity);
+		
+		logger.info("${table.JavaName}Handler -> delete 入参:" + ${strings.lowercaseFirstLetter($table.JavaName)}EntityDeleteParam.toString());
+		return true;
+	}
+	
+	
+	
+	
+}

@@ -1,0 +1,2 @@
+DROP TABLE $table.Name;
+##drop sequence if exists $table.SequenceName;

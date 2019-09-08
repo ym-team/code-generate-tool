@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="gb2312"?>
+<project name="delploy" default="main" basedir=".">
+    <!-- ================================================================== -->
+    <!-- 初始化属性						                        			-->
+    <!-- ================================================================== -->
+    <target name="init-properties" description="初始化属性">
+        <property file="deploy.properties"/>
+		<property name="src.dir"    value="out/${deploy.model}/src"/>
+		<property name="jsp.dir" value="out/${deploy.model}/jsp"/>		
+		<property name="conf.dir"   value="out/${deploy.model}/conf/"/>
+		<property name="enmu.dir"   value="out/${deploy.model}/enum/"/>
+		<property name="sql.dir" value="out/${deploy.model}/sql"/>
+								
+        <!--property name="bin.dir" value="bin"/>
+	    <property name="WEB-INF" value="WEB-INF"/>
+	    <property name="skins" value="skins"/>
+	    <property name="jsp" value="jsp"/>
+    	<property name="sql" value="sql"/>
+    	<property name="sql-dir" value="${sql-db-type}"/-->
+		
+		<!--目标路径根-->
+		<property name="webapp.dir" value="${deploy.dir}/${deploy.name}" />
+    </target> 
+    <target name="copy" depends="init-properties" description="拷贝文件">
+        <!--拷贝web,jsp,配置文件(*.xml,*.properties),dtd,jar等,除了class-->
+        <copy todir="${webapp.dir}/src/">
+            <fileset dir="${src.dir}"/>
+          </copy>
+		
+        <copy todir="${webapp.dir}/WebContent/jsp/">
+            <fileset dir="${jsp.dir}"/>            
+        </copy>
+	
+        <copy todir="${webapp.dir}/sql/${deploy.model}">
+            <fileset dir="${sql.dir}"/>            
+        </copy>		
+	
+        <copy todir="${webapp.dir}/WebContent/WEB-INF/${deploy.model}/">
+            <fileset dir="${conf.dir}"/>            
+        </copy>
+        <copy todir="${webapp.dir}/WebContent/WEB-INF/enum/${deploy.model}">
+            <fileset dir="${enmu.dir}"/>            
+        </copy>		
+
+  </target>
+   <!-- 主要任务-->
+  <target name="main" description="==>发布程序,拷贝">
+        <antcall target="copy"/>
+  </target>
+</project>

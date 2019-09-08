@@ -1,0 +1,5 @@
+#set($comma = false)
+#foreach ($pk in $table.PrimaryKeys)
+#if($comma),#end #if( $pk.JavaType=="int" )new Integer(${strings.lowercaseFirstLetter(${pk.JavaName})})#else ${strings.lowercaseFirstLetter(${pk.JavaName})}#end
+#set( $comma = true )
+#end

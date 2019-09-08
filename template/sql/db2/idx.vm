@@ -1,0 +1,10 @@
+#foreach ($index in $table.Indices)
+CREATE #if($index.Unique)UNIQUE#end INDEX $index.Name ON $table.Name ($index.ColumnList);
+#end
+##set( $count = 1 )
+##foreach ($fk in $table.ForeignKeys)
+##if( !$fk.NoSql )
+##CREATE INDEX ${table.Name}_If$count ON $table.Name ($fk.LocalColumnNames);
+##set($count = $count + 1 )
+##end
+##end

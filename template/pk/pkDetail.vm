@@ -1,0 +1,6 @@
+#set($squote="'")
+#set($colon = false)
+#foreach ( $col in $table.Columns )
+#if ( $col.isPrimaryKey() )#if($colon)+$squote:$squote+#end${strings.lowercaseFirstLetter($col.JavaName)}#end
+#set( $colon = true )
+#end

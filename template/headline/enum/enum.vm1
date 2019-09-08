@@ -1,0 +1,29 @@
+#set($detailTable="")
+#set($lineFlag=false)
+#if($table.hasLine())
+#set($detailTable=$table.LineTable)
+#foreach($col in $detailTable.Columns)
+#if($col.hasEnumValue())
+#set($lineFlag=true)
+#end
+#end
+#end
+#set( $have=0 )
+#foreach($col in $table.Columns)
+#if($col.hasEnumValue())
+#set( $have=1 )
+#end
+#end
+
+
+#if($have==1 || $lineFlag)
+#foreach($col in $table.Columns)
+#set($n=0)
+#if($col.hasEnumValue())
+${table.JavaName.toUpperCase()}.${col.JavaName.toUpperCase()}= #set($comma=false)#foreach ($enum in $col.EnumValueList )#if($comma),#end$col.EnumNameList.get($n):$enum #set($n=$n+1)#set($comma=true)#end
+#end
+#end
+#end
+
+
+

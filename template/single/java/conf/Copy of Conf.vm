@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+#set ( $package = "${topPackage}${table.pkg}" ) 
+#if ( $table.JspPath )
+#set ( $pkjsp = "${table.JspPath}" )
+#else
+#set ( $pkjsp = "${package}" )
+#end
+#set($detailTable=false)
+#if($tbl.hasLine())
+#set($detailTable=$tbl.LineTable)
+#end
+#set( $have=0 )
+#set( $pkHave=0 )
+#foreach($col in $table.Columns)
+#if($col.hasEnumValue())
+#set( $have=1 )
+#elseif( $col.isForeignKey() )
+#set( $pkHave=1 )
+#end
+#end
+<!-- ${table.chineseDescription}-->
+<!--***********************jdbcdaoÅäÖÃ************-->
+	<bean id="${strings.lowercaseFirstLetter(${table.JavaName})}Dao" class="${package}.dao.impl.${table.JavaName}JdbcDao">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+	</bean>
+
+<!--***********************serviceÅäÖÃ***********-->
+	<bean id="${strings.lowercaseFirstLetter(${table.JavaName})}Service" parent="jdbcTransactionProxy">
+		<property name="target">
+		<bean  class="${package}.service.impl.${table.JavaName}ServiceImpl"> 
+			<property name="${strings.lowercaseFirstLetter(${table.JavaName})}Dao"><ref bean="${strings.lowercaseFirstLetter(${table.JavaName})}Dao"/></property>   	
+		</bean>
+		</property>
+	</bean>
+
+</beans>
